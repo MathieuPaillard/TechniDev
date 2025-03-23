@@ -1,0 +1,35 @@
+body{
+    background-color: tomato;
+}
+/*
+h1{
+    color: #FFFFFF;
+}
+h2{
+    color: #FFFFFF;
+}
+h3{
+    color: #FFFFFF;
+}
+h4{
+    color: #FFFFFF;
+}
+h5{
+    color: #FFFFFF;
+}
+h6{
+    color: #FFFFFF;
+}
+*/
+h1,h2,h3,h4,h5,h6,p{
+    color: #FFFFFF;
+}
+h1.bleu{
+    color: blue;
+}
+.italic{
+    font-style: italic;
+}
+#titre-3{
+    opacity: .5;
+}

@@ -1,0 +1,40 @@
+body{
+    background-color: rgb(180, 192, 190);
+}
+h1{
+    background-color: yellow;
+}
+p{
+    
+    background-color: black;
+    color: aquamarine;
+}
+.center{
+    text-align: center;
+}
+.left{
+    text-align: left;
+}
+.right{
+    text-align: right;
+}
+.intro{
+    background-color: brown;
+}
+.flex{
+    background-color: brown;
+}
+img{
+    width: 200px;
+}
+.cover{
+    display: flex;
+    background-color: brown;
+}
+.pad{
+    padding: 10pt;
+    margin: 5pt;
+}
+.blank{
+    color: aliceblue;
+}

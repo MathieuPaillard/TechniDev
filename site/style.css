@@ -1,0 +1,15 @@
+body{
+    background-color: rgb(136, 104, 132);
+    color: aliceblue;
+}
+p{
+    color: blue;
+    font-style: italic;
+    font-size: larger;
+}
+.histoire{
+    background-color: brown;
+    color: black ;
+    font-size: xx-large;
+    font-style: italic;
+}

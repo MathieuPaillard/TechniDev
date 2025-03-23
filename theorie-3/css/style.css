@@ -1,0 +1,21 @@
+body{
+    background-color: gray;
+}
+.container{
+    height: auto;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 10px 20px;;
+    justify-content:  space-between;
+    background-color: brown;
+    align-items: center;
+
+}
+
+.square{
+    height: 100px;
+    width: 100px;
+    background-color: black;
+    color: aliceblue;
+}
