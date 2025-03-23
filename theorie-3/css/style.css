@@ -6,7 +6,7 @@ body{
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    gap: 10px 20px;;
+    gap: 1vh 2vh;;
     justify-content:  space-between;
     background-color: brown;
     align-items: center;
@@ -14,8 +14,8 @@ body{
 }
 
 .square{
-    height: 100px;
-    width: 100px;
+    height: 15vh;
+    width: 15vh;
     background-color: black;
     color: aliceblue;
 }
