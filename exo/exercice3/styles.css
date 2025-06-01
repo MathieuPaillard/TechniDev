@@ -1,0 +1,21 @@
+h1{ 
+    color: #333;  /* Dark gray */
+    font-size: 2em;  /* Font size */
+    text-align: center;  /* Centered text */   
+    margin: 20px;  /* Margin around the heading */
+    padding: 10px;  /* Padding inside the heading */
+    border: 2px solid #333;  /* Border around the heading */
+    background-color: #f4f4f4;  /* Light gray background */
+    border-radius: 5px;  /* Rounded corners */
+}
+h2{ 
+    color: #555;  /* Medium gray */
+    font-size: 1.5em;  /* Font size */
+    text-align: left;  /* Left-aligned text */   
+    margin: 15px;  /* Margin around the heading */
+    padding: 8px;  /* Padding inside the heading */
+    border: 2px solid #555;  /* Border around the heading */
+    background-color: #eaeaea;  /* Light gray background */
+    border-radius: 5px;  /* Rounded corners */
+}
+

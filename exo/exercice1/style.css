@@ -1,0 +1,39 @@
+div{
+    border: 5px solid black; 
+    background-color: rgb(93, 95, 95);
+    padding: 40 px;
+    
+    margin: 30px;
+}
+header{
+    background-color: rgb(107, 107, 7);
+    color: white;
+    text-align: center;
+    padding: 10px;
+}
+main{
+    background-color: rgb(6, 81, 142);
+    color: white;
+    text-align: center;
+    padding: 10px;
+}
+footer{
+    background-color: rgb(115, 21, 77);
+    color: white;
+    text-align: center;
+    padding: 10px;
+}
+.conteneur{
+    display: flex;
+    background-color: rgb(12, 12, 99);
+
+}
+.hero-image {
+    background-image: url("https://www.w3schools.com/w3images/lights.jpg");
+    height: 100%;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    width: 92%;
+    padding: 20px;
+}

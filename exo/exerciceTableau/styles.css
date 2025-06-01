@@ -1,0 +1,46 @@
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+html, body{
+    font-size: 62.5%;   /* 1rem = 10px */
+    height: 100%;
+    font-family: 'Courier New', Courier, monospace;
+    background-color: #f0f0f0;
+}
+
+h1{
+    text-align: center;
+    margin: 5rem 0;
+    font-size: 5cqi;
+}
+h2{
+    text-align: left;
+    margin: 2rem 0;
+    font-size: 3rem;
+    font-weight: 900;
+    margin: 2rem 0;
+    padding: 2rem 0;
+}
+.legende-tableau{
+    text-align: center;
+    margin: 2rem 0;
+    font-size: 1.6rem;
+    padding: 2rem 0;
+    font-weight: 900;
+   
+}
+table{
+    margin: 0 auto;
+    border-collapse: collapse;
+    width: 80%;
+    font-size: 1.6rem;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+}
+th{
+    border: #1b0202 solid 2px;
+    border-collapse: collapse;
+}

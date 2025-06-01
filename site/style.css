@@ -12,4 +12,63 @@ p{
     color: black ;
     font-size: xx-large;
     font-style: italic;
+    letter-spacing: 5px;
+    text-shadow: 2px 2px #08c24f;
 }
+a:link {
+    color: blue;
+
+}
+a:visited {
+    color:grey;
+}
+a:focus{
+    font-size: 30px;
+    color: green;
+    background-color: aliceblue;
+
+}
+a:hover{
+    color: red;
+    text-decoration: none;
+}
+a:active{
+    color: black;
+}
+.sans-soulignement {
+    
+            text-decoration: none;
+    
+        }
+    
+        .avec-soulignement {
+    
+            text-decoration: underline;
+    
+        }
+    
+        .avec-surlignement {
+    
+            text-decoration: overline;	
+    
+        }
+    
+        .avec-surlignement-soulignement {
+    
+            text-decoration: underline overline;
+    
+        }
+    
+        .trait-barre {
+    
+            text-decoration: line-through;
+    
+        }
+    
+        .pointilles {
+    
+            /* souligné + pointillé + couleur rouge */
+    
+            text-decoration: underline dashed red;
+    
+        }

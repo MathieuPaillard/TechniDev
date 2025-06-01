@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exercice Formulaire</title>
+    <link rel="stylesheet" href="Styles.css">
+</head>
+
+<body>
+    <header>
+        <h1>Exercice Formulaire</h1>
+    </header>
+    <main>
+        <h2>Formulaire d'inscription</h2>
+        <form action="" method="get">
+            <fieldset>
+                <legend>Vos Coordonnées</legend>
+                <div>
+                    <label for="name">Nom:</label><br>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                <div>
+                    <label for="prename">Prénom:</label><br>
+                    <input type="text" id="prename" name="prename" required>
+
+                </div>
+                <div>
+                    <label for="email">Email:</label><br>
+                    <input type="email" id="email" name="email" required>
+                </div>
+            </fieldset>
+            <fieldset>
+                <legend>Selection de votre language de programmation</legend>
+                <label for="">Language de programmation :</label>
+                <input type="text" list="list-language" name="langage" id="langage" required>
+                <datalist   id="list-language">
+                    <option value="" disabled selected>Choisissez un langage</option>
+                    <option value="PHP">
+                    <option value="JavaScript">
+                    <option value="Python">
+                    <option value="Java">
+                    <option value="C++">
+                    <option value="Ruby">
+                    <option value="Swift">
+                    <option value="Go">
+                    <option value="C#">
+                </datalist>
+                <div>
+                    <label for="langage">Langage de programmation:</label>
+                    <select name="langage" id="langage">
+                        <option value="php">PHP</option>
+                        <option value="javascript">JavaScript</option>
+                        <option value="python">Python</option>
+                        <option value="java">Java</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="langage">Langage de programmation:</label><br>
+                    <input type="checkbox" id="langage" name="langage" value="php">PHP<br>
+                    <input type="checkbox" id="langage" name="langage" value="javascript">JavaScript<br>
+                    <input type="checkbox" id="langage" name="langage" value="python">Python<br>
+                    <input type="checkbox" id="langage" name="langage" value="java">Java<br>
+
+                    <br>
+                    
+                            <label for="commentaire">Commentaire :</label>
+                    
+                            <textarea id="commentaire" required cols="30" rows="10"></textarea>
+                    
+                            <br>
+
+            </fieldset>
+
+            <input type="submit" value="Soumettre">
+        </form>
+    </main>
+    <footer>
+        <p>&copy; 2025 Exercice Formulaire</p>
+
+</html>
