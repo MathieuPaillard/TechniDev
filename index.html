@@ -1,16 +1,161 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
-    <title>Test site web</title>
+  <meta charset="UTF-8" />
+  <title>Lecture Feuilles Horoquarks</title>
+  <link rel="stylesheet" href="/public/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+  <script src="/public/modules/JourTravail.js"></script>
+  <script src="/public/modules/SemaineTravail.js"></script>
+  <script src="/public/modules/Calculateur.js"></script>
 </head>
+
 <body>
-    <h1>Premier test de création de site web</h1>
-    <h2>Des liens : </h2>
-    <p><a href="../TechniDev/site/index.html" target="_blank">Premier lien vers site</a></p>
-    <br>
-    <a href="https://docs.oracle.com/javase/8/docs/api/java/time/format/DateTimeFormatter.html"> Lien test vers oracle</a>
+  <h1>Analyse des feuilles d'heures FCI</h1>
+
+  <input type="file" id="fileInput" accept=".xls,.xlsx" />
+  <div id="global" class="global-totals"></div>
+  <div id="weeks" class="weeks-grid"></div>
+  <pre id="output"></pre>
+
+  <script>
+    const input = document.getElementById("fileInput");
+    const output = document.getElementById("output");
+
+    input.addEventListener("change", (event) => {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: "array" });
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+        // Filter rows where first cell is a number (Excel date)
+        const dataRows = rows.filter(r => typeof r[0] === "number");
+
+        // Build JourTravail instances directly
+        const joursTravail = dataRows.map(r => new JourTravail(
+          XLSX.SSF.format("yyyy-mm-dd", r[0]), // formatted date
+          r[1],  // codeEquipe
+          r[3],  // mouvements
+          r[9],  // compteur_presence
+          r[13], // compteur_tot
+          r[15], // compteur_effectif
+          r[16], // compteur_theorique
+          r[19], // compteur_nuit
+          r[26]  // codes_horaire
+        ));
+
+        // Group by ISO weeks and render responsive cards + text summary
+        let resume = "";
+        const container = document.getElementById('weeks');
+        container.innerHTML = '';
+        if (window.Calculateur) {
+          const semaines = Calculateur.listerSemainesTriees(joursTravail);
+          resume += `Semaines detectees: ${semaines.length}\n`;
+          const xhr00 = Calculateur.sommeXHR00(joursTravail) || 0;
+          let totalGlobal = 0; let totalGlobalDetail = { habillage: 0, rtt: 0, rehs: 0, rehsGagnees: 0, rehsPosees: 0 };
+          for (const s of semaines) {
+            const t = s.totaux();
+            const hab = Calculateur.habillageSemaine(s);
+            const rtt = Calculateur.calculRTTSemaine(s);
+            const hs = Calculateur.calculHeuresSupplementairesSemaine(s);
+            const paidFully = Math.abs(hs.totalValhs - hs.totalYhaPayer) < 1e-6;
+            // Totaux de repos pour la semaine
+            const habH = (hab.total || 0) / 60;
+            const rttH = rtt.rtt || 0;
+            const rehsH = hs.rehsNetMajorees || 0;
+            const totalSem = habH + rttH + rehsH;
+            const totalSemNet = totalSem - (hs.rehsPoses || 0);
+            totalGlobal += totalSemNet;
+            totalGlobalDetail.habillage += habH; totalGlobalDetail.rtt += rttH; totalGlobalDetail.rehsGagnees += rehsH; totalGlobalDetail.rehsPosees += (hs.rehsPoses || 0); totalGlobalDetail.rehs += (rehsH - (hs.rehsPoses || 0));
+            // Card
+            const card = document.createElement('div');
+            card.className = 'week-card';
+            let majHTML = '';
+            if ((hs.majoration?.baseEligible || 0) > 0) {
+              majHTML = `
+                <div class=\"week-maj\">
+                  <span class=\"label\">Majoration</span>
+                  <span class=\"mono\">base=${Calculateur.formatHeures(hs.majoration.baseEligible)} → +${Calculateur.formatHeures(hs.majoration.extra)}</span>
+                  <button class=\"btn maj-toggle\" type=\"button\">Détail</button>
+                  <div class=\"maj-details hidden\">
+                    <span class=\"chips\">
+                      <span class=\"chip chip-25\">25%: +${Calculateur.formatHeures(hs.majoration.h25)}</span>
+                      <span class=\"chip chip-50\">50%: +${Calculateur.formatHeures(hs.majoration.h50)}</span>
+                      <span class=\"chip chip-100\">100%: +${Calculateur.formatHeures(hs.majoration.h100)}</span>
+                    </span>
+                  </div>
+                </div>`;
+            }
+            card.innerHTML = `
+              <div class=\"week-title\">${s.id}</div>
+              <div class=\"week-total\">Total de la semaine: ${Calculateur.formatHeures(totalSem)}</div>
+              <div class=\"week-habillage\">Habillage: ${hab.total.toFixed(1)} min</div>
+              <div class=\"week-rtt\">RTT: ${Calculateur.formatHeures(rtt.rtt)} ${rtt.equipe ? '' : '(hors equipe)'} </div>
+              <div class=\"week-hs\">
+                <span class=\"label\">HS</span>
+                <span class=\"mono\">VALHS=${Calculateur.formatHeures(hs.totalValhs)} | PAYEES=${Calculateur.formatHeures(hs.totalYhaPayer)} | REHS semaine=${Calculateur.formatHeures(hs.rehsMajorees)} | posées=${Calculateur.formatHeures(hs.rehsPoses)}</span>
+                <span class=\"badge ${paidFully ? 'badge-ok' : (hs.rehsMajorees > 0 ? 'badge-warn' : 'badge-info')}\">${paidFully ? 'Payées intégralement' : (hs.rehsMajorees > 0 ? 'Récup à comptabiliser' : 'Pas de REHS')}</span>
+              </div>
+              ${majHTML}
+            `;
+            container.appendChild(card);
+            const toggle = card.querySelector('.maj-toggle');
+            if (toggle) {
+              toggle.addEventListener('click', () => {
+                const details = card.querySelector('.maj-details');
+                if (details) details.classList.toggle('hidden');
+              });
+            }
+            // Text summary line
+            resume += `${s.id} | habillage=${hab.total.toFixed(1)}min (${hab.count}) | rtt=${Calculateur.formatHeures(rtt.rtt)} (heures=${rtt.heures.toFixed(2)})\n` +
+              `  presence=${t.compteur_presence} tot=${t.compteur_tot} effectif=${t.compteur_effectif} theorique=${t.compteur_theorique} nuit=${t.compteur_nuit}\n`;
+          }
+          // Affichage global en tête
+          const globalEl = document.getElementById('global');
+          if (globalEl) {
+            globalEl.innerHTML = `
+              <div class=\"global-title\">Total global (repos): ${Calculateur.formatHeures(totalGlobal + xhr00)}</div>
+              <div class=\"global-breakdown\">
+                <span>Habillage: ${Calculateur.formatHeures(totalGlobalDetail.habillage)}</span>
+                <span>RTT: ${Calculateur.formatHeures(totalGlobalDetail.rtt)}</span>
+                <span>REHS gagnées: ${Calculateur.formatHeures(totalGlobalDetail.rehsGagnees)}</span>
+                <span>REHS posées: ${Calculateur.formatHeures(totalGlobalDetail.rehsPosees)}</span>
+                <span>REHS nettes: ${Calculateur.formatHeures(totalGlobalDetail.rehs)}</span>
+                <span>XHR00: ${Calculateur.formatHeures(xhr00)}</span>
+              </div>
+            `;
+            const controls = document.createElement('div');
+            controls.className = 'global-controls';
+            controls.innerHTML = '<label><input type="checkbox" id="toggleMaj"> Afficher les détails des majorations</label>';
+            globalEl.appendChild(controls);
+            const switchMaj = document.getElementById('toggleMaj');
+            if (switchMaj) {
+              switchMaj.addEventListener('change', (ev) => {
+                const show = !!ev.target.checked;
+                document.querySelectorAll('.maj-details').forEach(el => {
+                  if (show) el.classList.remove('hidden'); else el.classList.add('hidden');
+                });
+              });
+            }
+          }
+        } else {
+          resume += "Module Calculateur non charge.\n";
+        }
+
+      // Show a debug extract of the first 10 items
+      const extrait = JSON.stringify(joursTravail.slice(0, 10), null, 2);
+      output.textContent = `${resume}\nExtrait de 10 lignes converties en JourTravail :\n${extrait}`;
+    };
+
+    reader.readAsArrayBuffer(file);
+        });
+  </script>
 </body>
+
 </html>

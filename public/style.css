@@ -1,0 +1,123 @@
+#output {
+    background-color: aqua;
+    height: 5rem;
+    justify-items: center;
+    align-content: center;
+    border-color: black;
+    border-style: solid;
+    border-radius: 2rem;
+    padding: 1rem;
+    margin: 1rem;
+}
+#fileInput{
+    padding: 1rem;
+    display: flex;
+}
+
+.weeks-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    padding: 1rem;
+}
+
+.week-card {
+    border: 1px solid #e6e9ef;
+    border-radius: 14px;
+    padding: 1rem;
+    background: linear-gradient(180deg, #fdfdff 0%, #f7fbff 100%);
+    box-shadow: 0 6px 16px rgba(13, 36, 69, 0.06), 0 2px 8px rgba(13, 36, 69, 0.04);
+}
+
+.week-title {
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+    color: #0b5cad;
+}
+
+.week-meta {
+    color: #555;
+    margin-bottom: 0.5rem;
+}
+
+.week-habillage {
+    font-family: monospace;
+}
+
+.week-rtt {
+    margin-top: 0.25rem;
+    font-family: monospace;
+}
+
+.week-total {
+    margin: 0.25rem 0 0.3rem 0;
+    font-weight: 600;
+}
+
+.week-hs, .week-maj {
+    margin-top: 0.25rem;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: 0.35rem 0.5rem;
+    align-items: center;
+}
+
+.week-hs .label, .week-maj .label {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #333;
+}
+
+.week-hs .mono, .week-maj .mono {
+    font-family: monospace;
+    color: #222;
+}
+
+.badge {
+    padding: 0.15rem 0.5rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+}
+.badge-ok { background: #e6f7ed; color: #117a3a; border: 1px solid #bfe8cf; }
+.badge-warn { background: #fff3e6; color: #a05a00; border: 1px solid #ffd8a8; }
+.badge-info { background: #eef5ff; color: #0c5db3; border: 1px solid #cfe0ff; }
+
+.chips {
+    grid-column: 2 / span 2;
+    display: flex;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+}
+.chip {
+    font-size: 0.72rem;
+    border-radius: 8px;
+    padding: 0.1rem 0.4rem;
+    border: 1px dashed #ccc;
+}
+.chip-25 { background: #eef6ff; color: #0b5cad; border-color: #bcd7ff; }
+.chip-50 { background: #effbea; color: #2a7a0e; border-color: #cfeec1; }
+.chip-100 { background: #fff0f4; color: #a30c23; border-color: #ffc2cf; }
+
+.btn {
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+    border: 1px solid #bfc5d1;
+    background: #f8fafc;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+.btn:hover { background: #f1f5f9; }
+.hidden { display: none; }
+
+.global-totals {
+    margin: 0.5rem 1rem 0 1rem;
+    padding: 0.6rem 0.9rem;
+    border: 1px solid #dfe3ea;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #fbfdff 0%, #f4f9ff 100%);
+    box-shadow: 0 6px 16px rgba(13, 36, 69, 0.05), 0 2px 8px rgba(13, 36, 69, 0.03);
+}
+.global-title { font-weight: 700; margin-bottom: 0.25rem; }
+.global-breakdown { display: flex; gap: 1rem; color: #333; }
+.global-controls { margin-top: 0.4rem; }
