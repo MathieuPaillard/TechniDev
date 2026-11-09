@@ -1,1 +1,25 @@
+# Dépendances
+node_modules/
+
+# Construction et types générés
+dist/
+.astro/
+
+# Variables d'environnement (jamais dans git ; un .env.example documente les variables)
+.env*
+!.env.example
+
+# Netlify (outil en ligne de commande)
+.netlify/
+
+# Tests Playwright
+test-results/
+playwright-report/
+
+# Journaux
+npm-debug.log*
+
+# Systèmes et éditeurs
+.DS_Store
+.idea/
 *.xlsx
