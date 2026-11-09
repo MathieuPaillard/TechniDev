@@ -1,0 +1,45 @@
+---
+// Un pictogramme en tube : le verre dessous, la lumière dessus. L'éclat suit la variable --lit (0 à 1).
+import { PICTOS, type PictoName } from './pictos';
+
+interface Props {
+  name: PictoName;
+  class?: string;
+}
+
+const { name, class: className } = Astro.props;
+const shapes = PICTOS[name];
+---
+
+<svg class:list={['picto', className]} viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+  <g class="picto-glass" set:html={shapes} />
+  <g class="picto-light" set:html={shapes} />
+</svg>
+
+<style is:global>
+  .picto {
+    overflow: visible;
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .picto-glass {
+    stroke: var(--glass);
+    stroke-width: 3.6;
+  }
+
+  .picto-light {
+    stroke: var(--core);
+    stroke-width: 2.2;
+    opacity: var(--lit, 1);
+    filter: drop-shadow(0 0 1.5px var(--tube)) drop-shadow(0 0 5px var(--tube)) drop-shadow(0 0 14px var(--halo));
+    transition: opacity 0.25s ease;
+  }
+
+  :root[data-tubes='off'] .picto-light {
+    stroke: var(--frost);
+    filter: none;
+    opacity: 1;
+  }
+</style>

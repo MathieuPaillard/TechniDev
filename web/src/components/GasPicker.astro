@@ -1,0 +1,83 @@
+---
+// Choix du gaz des tubes : cinq cellules du tableau périodique, une seule allumée.
+// Le choix est appliqué par lib/ui/chrome.ts (attribut data-gas-choice).
+import { GASES, GAS_INFO, DEFAULT_GAS } from '../lib/ui/theme';
+---
+
+<fieldset class="gas-picker">
+  <legend class="gas-legend">Remplir les tubes avec un autre gaz</legend>
+  <div class="gas-cells">
+    {
+      GASES.map((gas) => (
+        <span class="gas-option">
+          <input
+            class="cell-input"
+            type="radio"
+            name="gas"
+            id={`gas-${gas}`}
+            value={gas}
+            checked={gas === DEFAULT_GAS}
+            data-gas-choice
+          />
+          <label class="cell" for={`gas-${gas}`} data-gas={gas}>
+            <span class="cell-number" aria-hidden="true">
+              {GAS_INFO[gas].number}
+            </span>
+            <span class="cell-symbol" aria-hidden="true">
+              {GAS_INFO[gas].symbol}
+            </span>
+            <span class="cell-name">{GAS_INFO[gas].name}</span>
+          </label>
+        </span>
+      ))
+    }
+  </div>
+</fieldset>
+
+<style>
+  .gas-picker {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+  }
+
+  .gas-legend {
+    padding: 0;
+    margin-bottom: var(--space-3);
+    font-size: var(--text-s);
+    font-weight: 600;
+    color: var(--chalk-soft);
+  }
+
+  .gas-cells {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+
+  .gas-option {
+    position: relative;
+    display: inline-block;
+  }
+
+  @media (max-width: 26rem) {
+    .gas-cells {
+      gap: 0.4rem;
+    }
+
+    .gas-cells :global(.cell) {
+      width: 3.5rem;
+      min-height: 4.5rem;
+      padding-inline: 0.3rem;
+    }
+
+    .gas-cells :global(.cell-symbol) {
+      font-size: 1.55rem;
+    }
+
+    .gas-cells :global(.cell-name) {
+      font-size: 0.62rem;
+    }
+  }
+</style>

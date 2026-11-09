@@ -1,0 +1,167 @@
+---
+// L'enseigne : un titre dont chaque lettre est un tube. Le verre reste visible quand le tube est éteint ;
+// la lumière est posée par-dessus (pseudo-élément) et s'amorce lettre par lettre au chargement.
+// Le texte est lu une seule fois par les lecteurs d'écran ; les lettres découpées leur sont cachées.
+// Comportement (inclinaison au pointeur, lettres que l'on éteint d'un clic) : lib/ui/sign.ts.
+interface Props {
+  lines: string[];
+}
+
+const { lines } = Astro.props;
+---
+
+<h1 class="sign" data-sign>
+  <span class="visually-hidden">{lines.join(' ')}</span>
+  {
+    lines.map((line, lineIndex) => (
+      <span class:list={['sign-line', `sign-line-${lineIndex + 1}`]} aria-hidden="true">
+        {[...line].map((char, index) => (
+          <span class:list={['sign-letter', `sign-letter-${index + 1}`]} data-char={char} data-sign-letter>
+            {char}
+          </span>
+        ))}
+      </span>
+    ))
+  }
+</h1>
+
+<style>
+  .sign {
+    position: relative;
+    display: grid;
+    justify-items: start;
+    font-size: clamp(3.4rem, 12.5vw, 9.5rem);
+    line-height: 0.98;
+    letter-spacing: 0.01em;
+    /* Tilt Neon s'incline sur deux axes : lib/ui/sign.ts les fait suivre le pointeur. */
+    font-variation-settings:
+      'XROT' var(--xrot, 0),
+      'YROT' var(--yrot, 0);
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* La lumière que l'enseigne jette sur le mur. */
+  .sign::before {
+    content: '';
+    position: absolute;
+    inset: -18% -12% -22%;
+    z-index: -1;
+    pointer-events: none;
+    opacity: var(--glow);
+    background: radial-gradient(
+      closest-side,
+      color-mix(in srgb, var(--halo) 26%, transparent),
+      color-mix(in srgb, var(--halo) 9%, transparent) 55%,
+      transparent
+    );
+    filter: blur(18px);
+    transition: opacity 0.4s ease;
+  }
+
+  .sign-line {
+    display: block;
+    white-space: nowrap;
+  }
+
+  .sign-line-2 {
+    --line-delay: 420ms;
+    margin-left: 0.42em;
+  }
+
+  .sign-letter {
+    position: relative;
+    display: inline-block;
+    /* Le verre du tube éteint. */
+    color: color-mix(in srgb, var(--frost) 46%, var(--wall));
+    cursor: pointer;
+  }
+
+  .sign-letter::after {
+    content: attr(data-char);
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: var(--core);
+    text-shadow:
+      0 0 0.02em var(--core),
+      0 0 0.07em var(--tube),
+      0 0 0.18em var(--tube),
+      0 0 0.42em var(--halo),
+      0 0 0.9em color-mix(in srgb, var(--halo) 60%, transparent);
+    pointer-events: none;
+  }
+
+  /* Lettre éteinte d'un clic, ou tous les tubes coupés à l'interrupteur. */
+  .sign-letter.is-off::after {
+    opacity: 0;
+  }
+
+  :global(:root[data-tubes='off']) .sign-letter::after {
+    opacity: 0;
+  }
+
+  :global(:root[data-tubes='off']) .sign-letter {
+    color: var(--frost);
+  }
+
+  .sign-letter.is-faltering::after {
+    animation: falter 0.5s linear;
+  }
+
+  /* Amorçage au premier chargement (classe posée par public/init.js), puis à chaque changement de gaz. */
+  .sign-letter-1 {
+    --letter-delay: 380ms;
+  }
+
+  .sign-letter-2 {
+    --letter-delay: 60ms;
+  }
+
+  .sign-letter-3 {
+    --letter-delay: 620ms;
+  }
+
+  .sign-letter-4 {
+    --letter-delay: 240ms;
+  }
+
+  .sign-letter-5 {
+    --letter-delay: 760ms;
+  }
+
+  .sign-letter-6 {
+    --letter-delay: 140ms;
+  }
+
+  .sign-letter-7 {
+    --letter-delay: 520ms;
+  }
+
+  .sign-letter-8 {
+    --letter-delay: 300ms;
+  }
+
+  .sign-letter-9 {
+    --letter-delay: 680ms;
+  }
+
+  .sign-letter-10 {
+    --letter-delay: 200ms;
+  }
+
+  :global(:root.ignite) .sign-letter:not(.is-off)::after {
+    animation: strike 1.1s linear calc(var(--line-delay, 0ms) + var(--letter-delay, 0ms)) both;
+  }
+
+  :global(:root.regas) .sign-letter:not(.is-off)::after {
+    animation: strike 0.8s linear calc(var(--letter-delay, 0ms) / 3) both;
+  }
+
+  /* Une seule colonne (téléphone, tablette) : l'enseigne prend la largeur. */
+  @media (max-width: 60rem) {
+    .sign {
+      font-size: clamp(3.4rem, 17vw, 8rem);
+    }
+  }
+</style>

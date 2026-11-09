@@ -1,0 +1,229 @@
+---
+// En-tête : la marque, la navigation, le gaz courant (un clic passe au suivant) et l'interrupteur des tubes.
+// Les deux commandes sont branchées par lib/ui/chrome.ts.
+import { DEFAULT_GAS, GAS_INFO } from '../lib/ui/theme';
+
+interface Props {
+  current?: 'labo' | 'projets' | undefined;
+}
+
+const { current } = Astro.props;
+const gas = GAS_INFO[DEFAULT_GAS];
+---
+
+<header class="site-header">
+  <div class="container site-header-inner">
+    <a class="brand" href="/" aria-label="TechniDev, accueil">
+      <span class="brand-text tube strike-on-load">TechniDev</span>
+    </a>
+
+    <nav class="site-nav" aria-label="Navigation principale">
+      <a href="/labo" aria-current={current === 'labo' ? 'page' : undefined}>Labo</a>
+      <a href="/projets" aria-current={current === 'projets' ? 'page' : undefined}>Projets</a>
+      <a href="/#parcours">Parcours</a>
+    </nav>
+
+    <div class="site-controls">
+      <button class="gas-cycle" type="button" data-gas-cycle title="Changer le gaz des tubes">
+        <span class="visually-hidden" data-gas-cycle-label>Gaz des tubes : {gas.name}. Passer au gaz suivant.</span>
+        <span class="gas-cycle-number" aria-hidden="true" data-gas-cycle-number>{gas.number}</span>
+        <span class="gas-cycle-symbol tube" aria-hidden="true" data-gas-cycle-symbol>{gas.symbol}</span>
+      </button>
+
+      <button class="power" type="button" role="switch" aria-checked="true" data-tubes-switch>
+        <span class="power-label">Néons</span>
+        <span class="power-track" aria-hidden="true"><span class="power-knob"></span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<style>
+  .site-header {
+    padding-block: var(--space-3);
+  }
+
+  .site-header-inner {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: var(--space-3) var(--space-5);
+  }
+
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target);
+    text-decoration: none;
+  }
+
+  .brand:hover {
+    text-shadow: none;
+  }
+
+  .brand-text {
+    font-family: var(--font-sign);
+    font-size: 1.6rem;
+    line-height: 1;
+    font-variation-settings:
+      'XROT' -14,
+      'YROT' 10;
+  }
+
+  .site-nav {
+    display: flex;
+    justify-content: flex-end;
+    gap: clamp(0.25rem, 2vw, 1.5rem);
+  }
+
+  .site-nav a {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: var(--target);
+    padding-inline: 0.6rem;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--chalk-soft);
+  }
+
+  .site-nav a:hover {
+    color: var(--core);
+  }
+
+  /* La page courante : un petit tube allumé sous le lien. */
+  .site-nav a[aria-current='page'] {
+    color: var(--chalk);
+  }
+
+  .site-nav a[aria-current='page']::after {
+    content: '';
+    position: absolute;
+    left: 0.6rem;
+    right: 0.6rem;
+    bottom: 0.35rem;
+    height: 3px;
+    border-radius: 2px;
+    background: var(--core);
+    box-shadow:
+      0 0 4px color-mix(in srgb, var(--tube) calc(var(--glow) * 100%), transparent),
+      0 0 12px color-mix(in srgb, var(--halo) calc(var(--glow) * 100%), transparent);
+  }
+
+  .site-controls {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+  }
+
+  .gas-cycle {
+    display: inline-grid;
+    grid-template-columns: auto auto;
+    align-items: start;
+    gap: 0.15rem;
+    min-width: var(--target);
+    min-height: var(--target);
+    padding: 0.2rem 0.5rem 0.25rem;
+    border: 2px solid var(--glass);
+    border-radius: 9px;
+    background: transparent;
+    transition: border-color 0.15s ease;
+  }
+
+  .gas-cycle:hover {
+    border-color: var(--tube);
+  }
+
+  .gas-cycle-number {
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    line-height: 1.3;
+    color: var(--chalk-soft);
+  }
+
+  .gas-cycle-symbol {
+    align-self: center;
+    font-family: var(--font-sign);
+    font-size: 1.35rem;
+    line-height: 1.2;
+  }
+
+  .power {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    min-height: var(--target);
+    padding: 0 0.2rem;
+    border: 0;
+    background: transparent;
+    font-size: var(--text-s);
+    font-weight: 600;
+    color: var(--chalk-soft);
+  }
+
+  .power:hover {
+    color: var(--chalk);
+  }
+
+  .power-track {
+    position: relative;
+    width: 2.7rem;
+    height: 1.45rem;
+    border: 2px solid var(--frost);
+    border-radius: 999px;
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  .power-knob {
+    position: absolute;
+    top: 50%;
+    left: 0.2rem;
+    width: 0.8rem;
+    height: 0.8rem;
+    border-radius: 50%;
+    background: var(--frost);
+    transform: translateY(-50%);
+    transition:
+      transform 0.2s ease,
+      background-color 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+
+  .power[aria-checked='true'] .power-track {
+    border-color: var(--tube);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--halo) 70%, transparent);
+  }
+
+  .power[aria-checked='true'] .power-knob {
+    background: var(--core);
+    transform: translate(1.2rem, -50%);
+    box-shadow:
+      0 0 4px var(--tube),
+      0 0 10px var(--halo);
+  }
+
+  /* Téléphone : la marque et les commandes sur une ligne, la navigation dessous. */
+  @media (max-width: 40rem) {
+    .site-header-inner {
+      grid-template-columns: 1fr auto;
+    }
+
+    .site-nav {
+      grid-column: 1 / -1;
+      grid-row: 2;
+      justify-content: flex-start;
+      margin-inline: -0.6rem;
+    }
+
+    .power-label {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+  }
+</style>

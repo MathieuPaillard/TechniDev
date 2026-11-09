@@ -1,0 +1,182 @@
+---
+import Base from '../layouts/Base.astro';
+import NeonSign from '../components/NeonSign.astro';
+import GasPicker from '../components/GasPicker.astro';
+import Picto from '../components/Picto.astro';
+import { DEMOS } from '../data/demos';
+---
+
+<Base title="TechniDev">
+  <section class="hero container">
+    <div class="hero-main">
+      <NeonSign lines={['Mathieu', 'Paillard']} />
+      <p class="lede hero-lede">
+        Je code ce qui m'intrigue : la gravité, les ondes, une masse molaire, des comptes entre amis. Tout est ici, et
+        tout se touche.
+      </p>
+      <GasPicker />
+      <div class="hero-actions">
+        <a class="btn" href="/labo">Entrer dans le labo</a>
+        <a class="btn btn-quiet" href="/projets">Voir les projets</a>
+      </div>
+    </div>
+
+    <nav class="hero-wall" aria-label="Démos du labo" data-wall>
+      {
+        DEMOS.map((demo, index) => (
+          <a class:list={['wall-sign', `wall-sign-${index + 1}`]} href={`/labo/${demo.slug}`} data-wall-sign>
+            <Picto name={demo.picto} class="wall-picto" />
+            <span class="wall-label">{demo.name}</span>
+          </a>
+        ))
+      }
+    </nav>
+  </section>
+
+  <script>
+    import '../lib/ui/sign';
+    import '../lib/ui/wall';
+  </script>
+</Base>
+
+<style>
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 0.8fr);
+    align-items: center;
+    gap: var(--space-7) var(--space-6);
+    min-height: min(46rem, calc(100dvh - 5rem));
+    padding-block: var(--space-6) var(--space-8);
+  }
+
+  .hero-main {
+    display: grid;
+    gap: var(--space-5);
+    justify-items: start;
+    min-width: 0;
+  }
+
+  .hero-lede {
+    margin-top: var(--space-3);
+  }
+
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    margin-top: var(--space-2);
+  }
+
+  /* Le mur d'enseignes : six pictogrammes en tube, un par démo, posés en quinconce. */
+  .hero-wall {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-5) var(--space-4);
+    justify-items: center;
+    padding-block: var(--space-5);
+  }
+
+  .wall-sign {
+    --lit: 0.5;
+    display: grid;
+    justify-items: center;
+    gap: var(--space-2);
+    padding: var(--space-3) var(--space-4);
+    border-radius: 14px;
+    text-decoration: none;
+  }
+
+  .wall-sign:nth-child(even) {
+    transform: translateY(2.6rem);
+  }
+
+  .wall-sign :global(.wall-picto) {
+    width: clamp(4.5rem, 8.4vw, 7rem);
+    height: auto;
+  }
+
+  .wall-label {
+    font-family: var(--font-sign);
+    font-size: 1.2rem;
+    line-height: 1.2;
+    color: var(--chalk-soft);
+    transition:
+      color 0.2s ease,
+      text-shadow 0.2s ease;
+  }
+
+  .wall-sign:hover,
+  .wall-sign:focus-visible {
+    --lit: 1;
+    text-shadow: none;
+  }
+
+  .wall-sign:hover .wall-label,
+  .wall-sign:focus-visible .wall-label {
+    color: var(--core);
+    text-shadow:
+      0 0 0.1em var(--tube),
+      0 0 0.5em color-mix(in srgb, var(--halo) calc(var(--glow) * 100%), transparent);
+  }
+
+  /* Les enseignes s'amorcent l'une après l'autre, après le nom. */
+  :global(:root.ignite) .wall-sign :global(.picto-light) {
+    animation: strike 0.9s linear var(--strike-delay, 1.4s) both;
+  }
+
+  :global(:root.regas) .wall-sign :global(.picto-light) {
+    animation: strike 0.7s linear both;
+  }
+
+  .wall-sign-1 {
+    --strike-delay: 1.5s;
+  }
+
+  .wall-sign-2 {
+    --strike-delay: 1.95s;
+  }
+
+  .wall-sign-3 {
+    --strike-delay: 1.7s;
+  }
+
+  .wall-sign-4 {
+    --strike-delay: 2.3s;
+  }
+
+  .wall-sign-5 {
+    --strike-delay: 2.1s;
+  }
+
+  .wall-sign-6 {
+    --strike-delay: 1.85s;
+  }
+
+  @media (max-width: 60rem) {
+    .hero {
+      grid-template-columns: 1fr;
+      min-height: 0;
+      padding-block: var(--space-5) var(--space-7);
+    }
+
+    .hero-wall {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-4) var(--space-2);
+      padding-block: 0;
+    }
+
+    .wall-sign:nth-child(even) {
+      transform: none;
+    }
+
+    .wall-sign {
+      --lit: 0.85;
+      padding-inline: var(--space-2);
+    }
+
+    .wall-label {
+      font-size: 1rem;
+      text-align: center;
+    }
+  }
+</style>

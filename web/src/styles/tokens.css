@@ -1,0 +1,213 @@
+/* Jetons de design : polices, couleurs par gaz, échelles. Le site est éclairé par un seul gaz à la fois,
+   comme une enseigne : hélium, néon, argon, krypton ou xénon (attribut data-gas sur <html>). */
+
+/* Polices auto-hébergées (licence OFL : textes dans src/assets/fonts). */
+@font-face {
+  font-family: 'Tilt Neon';
+  src: url('../assets/fonts/tilt-neon-latin.woff2') format('woff2-variations');
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+}
+
+@font-face {
+  font-family: 'Atkinson Next';
+  src: url('../assets/fonts/atkinson-hyperlegible-next-latin.woff2') format('woff2-variations');
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Atkinson Mono';
+  src: url('../assets/fonts/atkinson-hyperlegible-mono-latin.woff2') format('woff2-variations');
+  font-weight: 200 800;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* Couleurs déclarées comme telles : le navigateur peut alors les faire glisser d'un gaz à l'autre. */
+@property --wall {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #070a1a;
+}
+
+@property --plate {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #0e1430;
+}
+
+@property --glass {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #343f6b;
+}
+
+@property --frost {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #8b96c4;
+}
+
+@property --tube {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #59b4ff;
+}
+
+@property --halo {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #2b6bff;
+}
+
+@property --core {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #eaf6ff;
+}
+
+@property --chalk {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #e6ecff;
+}
+
+@property --chalk-soft {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #a3aed8;
+}
+
+@property --phosphor {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #ffb86b;
+}
+
+:root {
+  /* Argon : le gaz par défaut, bleu comme le logo TechniDev. */
+  --wall: #070a1a; /* le mur derrière l'enseigne */
+  --plate: #0e1430; /* une plaque posée sur le mur */
+  --glass: #343f6b; /* verre sombre : traits et contours éteints */
+  --frost: #8b96c4; /* tube éteint, encore lisible */
+  --tube: #59b4ff; /* la couleur de la décharge */
+  --halo: #2b6bff; /* la lumière qu'elle jette autour */
+  --core: #eaf6ff; /* le cœur du tube, presque blanc */
+  --chalk: #e6ecff; /* le texte courant */
+  --chalk-soft: #a3aed8; /* le texte secondaire */
+  --phosphor: #ffb86b; /* seconde teinte, pour opposer deux séries de données */
+
+  /* Les cinq gaz, constants quel que soit le gaz choisi : palette des séries multiples et des cellules. */
+  --gas-he: #ffd08a;
+  --gas-ne: #ff5b38;
+  --gas-ar: #59b4ff;
+  --gas-kr: #7dffc0;
+  --gas-xe: #c5b4ff;
+
+  /* Intensité de la lueur : 1 tubes allumés, 0 tubes éteints (interrupteur de l'en-tête). */
+  --glow: 1;
+
+  --font-sign: 'Tilt Neon', 'Arial Rounded MT Bold', ui-rounded, system-ui, sans-serif;
+  --font-body: 'Atkinson Next', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'Atkinson Mono', ui-monospace, 'Cascadia Mono', Menlo, Consolas, monospace;
+
+  --text-xs: 0.8125rem;
+  --text-s: 0.9375rem;
+  --text-m: 1.0625rem;
+  --text-l: 1.3125rem;
+  --text-xl: 1.75rem;
+  --text-2xl: 2.375rem;
+  --text-3xl: clamp(2.5rem, 5.6vw, 4rem);
+
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4.5rem;
+  --space-9: 7rem;
+
+  --gutter: clamp(1rem, 4vw, 2.5rem);
+  --measure: 62ch;
+  --radius: 6px;
+  --target: 2.75rem; /* 44 px : taille minimale d'une cible tactile */
+  --line: color-mix(in srgb, var(--glass) 55%, transparent);
+}
+
+:root[data-gas='he'] {
+  --wall: #140d08;
+  --plate: #23170d;
+  --glass: #5e4a33;
+  --frost: #b39b78;
+  --tube: #ffd08a;
+  --halo: #ff9440;
+  --core: #fff6e6;
+  --chalk: #fff1dd;
+  --chalk-soft: #d4b991;
+  --phosphor: #8fd0ff;
+}
+
+:root[data-gas='ne'] {
+  --wall: #150807;
+  --plate: #24100c;
+  --glass: #5c3832;
+  --frost: #b98d83;
+  --tube: #ff5b38;
+  --halo: #ff2800;
+  --core: #fff0e8;
+  --chalk: #ffece4;
+  --chalk-soft: #d8aca0;
+  --phosphor: #7fe7d0;
+}
+
+:root[data-gas='kr'] {
+  --wall: #06120d;
+  --plate: #0b2018;
+  --glass: #2f5645;
+  --frost: #84b39d;
+  --tube: #b4ffd6;
+  --halo: #2ef59a;
+  --core: #f0fff6;
+  --chalk: #e2fff0;
+  --chalk-soft: #9ccdb4;
+  --phosphor: #ff9ecb;
+}
+
+:root[data-gas='xe'] {
+  --wall: #0c0820;
+  --plate: #171035;
+  --glass: #473d7a;
+  --frost: #9a8fca;
+  --tube: #c5b4ff;
+  --halo: #7a4dff;
+  --core: #f3efff;
+  --chalk: #ece7ff;
+  --chalk-soft: #b1a6dc;
+  --phosphor: #ffd27a;
+}
+
+:root[data-tubes='off'] {
+  --glow: 0;
+}
+
+/* Changement de gaz : toutes les couleurs glissent ensemble. */
+@media (prefers-reduced-motion: no-preference) {
+  :root {
+    transition:
+      --wall 0.9s ease,
+      --plate 0.9s ease,
+      --glass 0.9s ease,
+      --frost 0.9s ease,
+      --tube 0.9s ease,
+      --halo 0.9s ease,
+      --core 0.9s ease,
+      --chalk 0.9s ease,
+      --chalk-soft 0.9s ease,
+      --phosphor 0.9s ease;
+  }
+}

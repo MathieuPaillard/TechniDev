@@ -1,0 +1,265 @@
+/* Socle : remise à zéro, texte, liens, mise en page. Le texte courant ne brille jamais : la lueur est
+   réservée aux tubes (titres, éléments que l'on peut toucher, simulations). */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  color-scheme: dark;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  background: var(--wall);
+  scrollbar-color: var(--glass) var(--wall);
+}
+
+body {
+  position: relative;
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background: var(--wall);
+  color: var(--chalk);
+  font-family: var(--font-body);
+  font-size: var(--text-m);
+  font-weight: 400;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+}
+
+/* La lumière sur le mur : une tache qui suit le pointeur (lib/ui/lamp.ts règle --px et --py), plus la lueur
+   diffuse du haut de page. Elle s'éteint avec les tubes. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: var(--glow);
+  background:
+    radial-gradient(
+      32rem circle at var(--px, 72%) var(--py, 12%),
+      color-mix(in srgb, var(--halo) 15%, transparent),
+      transparent 72%
+    ),
+    radial-gradient(90rem 40rem at 50% -12rem, color-mix(in srgb, var(--halo) 9%, transparent), transparent 70%);
+  transition: opacity 0.4s ease;
+}
+
+body > * {
+  position: relative;
+  z-index: 1;
+}
+
+main {
+  flex: 1;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  font-family: var(--font-sign);
+  font-weight: 400;
+  line-height: 1.12;
+  text-wrap: balance;
+}
+
+h1 {
+  font-size: var(--text-3xl);
+}
+
+h2 {
+  font-size: var(--text-2xl);
+}
+
+h3 {
+  font-size: var(--text-xl);
+}
+
+h4 {
+  font-size: var(--text-l);
+}
+
+p,
+ul,
+ol,
+dl,
+figure,
+blockquote {
+  margin: 0;
+}
+
+p,
+li,
+dd {
+  max-width: var(--measure);
+  text-wrap: pretty;
+}
+
+ul,
+ol {
+  padding-left: 1.2em;
+}
+
+strong {
+  font-weight: 700;
+  color: var(--core);
+}
+
+a {
+  color: inherit;
+  text-decoration-line: underline;
+  text-decoration-color: var(--tube);
+  text-decoration-thickness: 0.09em;
+  text-underline-offset: 0.22em;
+  transition:
+    color 0.15s ease,
+    text-shadow 0.15s ease;
+}
+
+a:hover {
+  color: var(--core);
+  text-shadow:
+    0 0 0.12em var(--tube),
+    0 0 0.6em color-mix(in srgb, var(--halo) calc(var(--glow) * 80%), transparent);
+}
+
+img,
+svg,
+canvas,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+code,
+kbd {
+  font-family: var(--font-mono);
+  font-size: 0.94em;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--tube) 42%, transparent);
+  color: var(--core);
+}
+
+:focus-visible {
+  outline: 2px solid var(--core);
+  outline-offset: 3px;
+  border-radius: 4px;
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--tube) 45%, transparent);
+}
+
+/* Mise en page */
+
+.container {
+  width: min(100% - 2 * var(--gutter), 78rem);
+  margin-inline: auto;
+}
+
+.section {
+  padding-block: var(--space-8);
+}
+
+.section-head {
+  display: grid;
+  gap: var(--space-3);
+  margin-bottom: var(--space-6);
+}
+
+.lede {
+  font-size: var(--text-l);
+  line-height: 1.5;
+  color: var(--chalk);
+  max-width: 54ch;
+}
+
+.muted {
+  color: var(--chalk-soft);
+}
+
+.small {
+  font-size: var(--text-s);
+}
+
+.stack {
+  display: grid;
+  gap: var(--space-4);
+  align-content: start;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+.skip-link {
+  position: absolute;
+  left: var(--gutter);
+  top: -4rem;
+  z-index: 20;
+  padding: 0.6rem 1rem;
+  background: var(--plate);
+  border: 2px solid var(--tube);
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.skip-link:focus {
+  top: 0.75rem;
+}
+
+/* Passage d'une page à l'autre : fondu natif du navigateur, quand il sait le faire. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

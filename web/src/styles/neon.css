@@ -1,0 +1,754 @@
+/* Les tubes et tout ce qui s'allume : titres, boutons, voyants, cellules de gaz, commandes des démos.
+   Règle du site : allumé = vivant, en ligne ou que l'on peut toucher ; verre éteint = inactif.
+   Chaque élément lit ses couleurs dans --t (tube), --h (halo) et --c (cœur), que l'on peut changer localement. */
+
+.tube,
+.btn,
+.lamp,
+.cell,
+.tag,
+.nixie {
+  --t: var(--tube);
+  --h: var(--halo);
+  --c: var(--core);
+}
+
+/* Texte en tube : cœur presque blanc, bord coloré, halo large. Les ombres sont en em : elles suivent la taille. */
+.tube {
+  color: var(--c);
+  text-shadow:
+    0 0 0.03em var(--c),
+    0 0 0.1em var(--t),
+    0 0 0.26em var(--t),
+    0 0 0.62em var(--h),
+    0 0 1.3em color-mix(in srgb, var(--h) 55%, transparent);
+}
+
+.tube-soft {
+  color: var(--core);
+  text-shadow:
+    0 0 0.1em var(--tube),
+    0 0 0.5em color-mix(in srgb, var(--halo) 70%, transparent);
+}
+
+:root[data-tubes='off'] .tube,
+:root[data-tubes='off'] .tube-soft {
+  color: var(--frost);
+  text-shadow: none;
+}
+
+/* Amorçage d'un tube : il hésite, puis tient. */
+@keyframes strike {
+  0% {
+    opacity: 0;
+  }
+  6% {
+    opacity: 1;
+  }
+  9% {
+    opacity: 0.1;
+  }
+  16% {
+    opacity: 0.85;
+  }
+  19% {
+    opacity: 0.2;
+  }
+  30% {
+    opacity: 1;
+  }
+  34% {
+    opacity: 0.55;
+  }
+  42%,
+  100% {
+    opacity: 1;
+  }
+}
+
+/* Un tube fatigué : deux battements brefs. */
+@keyframes falter {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  12% {
+    opacity: 0.25;
+  }
+  20% {
+    opacity: 0.9;
+  }
+  34% {
+    opacity: 0.15;
+  }
+  46% {
+    opacity: 1;
+  }
+  58% {
+    opacity: 0.6;
+  }
+  70% {
+    opacity: 1;
+  }
+}
+
+@keyframes lamp-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+/* Bouton : une boucle de tube. Plein éclat au survol, baisse de tension à l'appui. */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  min-height: var(--target);
+  padding: 0.5rem 1.25rem;
+  border: 2px solid var(--t);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--t) 8%, transparent);
+  color: var(--chalk);
+  font-size: var(--text-s);
+  font-weight: 650;
+  line-height: 1.2;
+  text-decoration: none;
+  text-align: center;
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  box-shadow:
+    0 0 5px color-mix(in srgb, var(--t) calc(var(--glow) * 100%), transparent),
+    0 0 16px color-mix(in srgb, var(--h) calc(var(--glow) * 70%), transparent),
+    inset 0 0 8px color-mix(in srgb, var(--t) calc(var(--glow) * 40%), transparent);
+  transition:
+    background-color 0.15s ease,
+    box-shadow 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.08s ease;
+}
+
+.btn:hover {
+  background: color-mix(in srgb, var(--t) 20%, transparent);
+  color: var(--c);
+  text-shadow: none;
+  box-shadow:
+    0 0 7px color-mix(in srgb, var(--t) calc(var(--glow) * 100%), transparent),
+    0 0 24px color-mix(in srgb, var(--h) calc(var(--glow) * 100%), transparent),
+    0 0 52px color-mix(in srgb, var(--h) calc(var(--glow) * 45%), transparent),
+    inset 0 0 12px color-mix(in srgb, var(--t) calc(var(--glow) * 60%), transparent);
+}
+
+.btn:active {
+  transform: translateY(1px);
+  background: color-mix(in srgb, var(--t) 10%, transparent);
+  box-shadow:
+    0 0 3px color-mix(in srgb, var(--t) calc(var(--glow) * 100%), transparent),
+    inset 0 0 4px color-mix(in srgb, var(--t) calc(var(--glow) * 50%), transparent);
+}
+
+/* Bouton discret : tube éteint, qui s'allume quand on s'en approche. */
+.btn-quiet {
+  border-color: var(--glass);
+  background: transparent;
+  color: var(--chalk-soft);
+  box-shadow: none;
+}
+
+.btn-quiet:hover {
+  border-color: var(--t);
+}
+
+.btn[aria-pressed='true'] {
+  background: color-mix(in srgb, var(--t) 24%, transparent);
+  color: var(--c);
+}
+
+.btn:disabled,
+.btn[aria-disabled='true'] {
+  border-color: var(--glass);
+  background: transparent;
+  color: var(--frost);
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-small {
+  min-height: 2.25rem;
+  padding: 0.3rem 0.9rem;
+  font-size: var(--text-xs);
+}
+
+:root[data-tubes='off'] .btn:not(.btn-quiet, :disabled) {
+  border-color: var(--frost);
+}
+
+/* Plaque : un panneau posé sur le mur. Aucune lueur : elle porte du contenu, elle ne se touche pas. */
+.plate {
+  background: color-mix(in srgb, var(--plate) 86%, transparent);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+
+/* Voyant d'état d'un projet. L'état est toujours écrit à côté : la lumière ne fait que le souligner. */
+.lamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: var(--text-s);
+  font-weight: 600;
+  color: var(--chalk);
+  white-space: nowrap;
+}
+
+.lamp::before {
+  content: '';
+  flex: none;
+  width: 0.62rem;
+  height: 0.62rem;
+  border-radius: 50%;
+  background: var(--c);
+  box-shadow:
+    0 0 4px color-mix(in srgb, var(--t) calc(var(--glow) * 100%), transparent),
+    0 0 12px color-mix(in srgb, var(--h) calc(var(--glow) * 100%), transparent);
+}
+
+.lamp[data-state='prototype']::before {
+  background: var(--t);
+  animation: lamp-pulse 2.6s ease-in-out infinite;
+}
+
+.lamp[data-state='stopped'] {
+  color: var(--chalk-soft);
+}
+
+.lamp[data-state='stopped']::before {
+  background: transparent;
+  border: 2px solid var(--frost);
+  box-shadow: none;
+}
+
+:root[data-tubes='off'] .lamp::before {
+  animation: none;
+}
+
+/* Étiquette de fabrication : « écrit à la main » ou « conçu et piloté, codé avec une IA ». */
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.15rem 0.7rem;
+  border: 1px solid var(--glass);
+  border-radius: 999px;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--chalk-soft);
+  white-space: nowrap;
+}
+
+.tag[data-making='hand'] {
+  border-style: dashed;
+}
+
+/* Cellule du tableau périodique : sert à choisir le gaz, et de touche dans la démo « masse molaire ». */
+.cell {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  justify-items: start;
+  width: 4.4rem;
+  min-height: 5.1rem;
+  padding: 0.35rem 0.5rem 0.4rem;
+  border: 2px solid var(--glass);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--plate) 70%, transparent);
+  color: var(--chalk-soft);
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.cell[data-gas='he'] {
+  --t: var(--gas-he);
+  --h: #ff9440;
+  --c: #fff6e6;
+}
+
+.cell[data-gas='ne'] {
+  --t: var(--gas-ne);
+  --h: #ff2800;
+  --c: #fff0e8;
+}
+
+.cell[data-gas='ar'] {
+  --t: var(--gas-ar);
+  --h: #2b6bff;
+  --c: #eaf6ff;
+}
+
+.cell[data-gas='kr'] {
+  --t: var(--gas-kr);
+  --h: #2ef59a;
+  --c: #f0fff6;
+}
+
+.cell[data-gas='xe'] {
+  --t: var(--gas-xe);
+  --h: #7a4dff;
+  --c: #f3efff;
+}
+
+.cell-number {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  line-height: 1.2;
+}
+
+.cell-symbol {
+  align-self: center;
+  justify-self: center;
+  font-family: var(--font-sign);
+  font-size: 1.9rem;
+  line-height: 1;
+  color: color-mix(in srgb, var(--t) 62%, var(--wall));
+  transition:
+    color 0.2s ease,
+    text-shadow 0.2s ease;
+}
+
+.cell-name {
+  justify-self: center;
+  font-size: 0.7rem;
+  line-height: 1.2;
+}
+
+.cell:hover {
+  border-color: color-mix(in srgb, var(--t) 70%, var(--glass));
+}
+
+.cell:hover .cell-symbol {
+  color: var(--t);
+}
+
+/* Cellule choisie : son tube est allumé, dans la couleur de son propre gaz. */
+.cell-input:checked + .cell,
+.cell[aria-pressed='true'],
+.cell.is-lit {
+  border-color: var(--t);
+  background: color-mix(in srgb, var(--t) 9%, var(--plate));
+  color: var(--chalk);
+  box-shadow:
+    0 0 5px color-mix(in srgb, var(--t) calc(var(--glow) * 100%), transparent),
+    0 0 18px color-mix(in srgb, var(--h) calc(var(--glow) * 80%), transparent),
+    inset 0 0 10px color-mix(in srgb, var(--t) calc(var(--glow) * 35%), transparent);
+}
+
+.cell-input:checked + .cell .cell-symbol,
+.cell[aria-pressed='true'] .cell-symbol,
+.cell.is-lit .cell-symbol {
+  color: var(--c);
+  text-shadow:
+    0 0 0.1em color-mix(in srgb, var(--t) calc(var(--glow) * 100%), transparent),
+    0 0 0.3em color-mix(in srgb, var(--t) calc(var(--glow) * 100%), transparent),
+    0 0 0.7em color-mix(in srgb, var(--h) calc(var(--glow) * 100%), transparent);
+}
+
+.cell-input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.cell-input:focus-visible + .cell {
+  outline: 2px solid var(--core);
+  outline-offset: 3px;
+}
+
+/* Commandes des démos */
+
+.field {
+  display: grid;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.field-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-3);
+  font-size: var(--text-s);
+  font-weight: 600;
+  color: var(--chalk-soft);
+}
+
+.field-value {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  color: var(--chalk);
+  white-space: nowrap;
+}
+
+.input,
+select.input,
+textarea.input {
+  width: 100%;
+  min-height: var(--target);
+  padding: 0.45rem 0.75rem;
+  background: color-mix(in srgb, var(--wall) 65%, var(--plate));
+  border: 1px solid var(--glass);
+  border-radius: var(--radius);
+  color: var(--chalk);
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.input::placeholder {
+  color: var(--frost);
+  opacity: 1;
+}
+
+.input:hover {
+  border-color: var(--frost);
+}
+
+.input:focus-visible {
+  outline: none;
+  border-color: var(--tube);
+  border-radius: var(--radius);
+  box-shadow:
+    0 0 0 1px var(--tube),
+    0 0 14px color-mix(in srgb, var(--halo) calc(var(--glow) * 70% + 25%), transparent);
+}
+
+.input[aria-invalid='true'] {
+  border-color: var(--phosphor);
+}
+
+.field-error {
+  font-size: var(--text-s);
+  color: var(--phosphor);
+}
+
+/* Curseur : un fil de verre, une perle allumée. La partie parcourue s'allume (--fill est réglé par lib/ui/controls.ts). */
+input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: var(--target);
+  margin: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type='range']::-webkit-slider-runnable-track {
+  height: 4px;
+  border-radius: 2px;
+  background: linear-gradient(to right, var(--tube) var(--fill, 50%), var(--glass) var(--fill, 50%));
+}
+
+input[type='range']::-moz-range-track {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--glass);
+}
+
+input[type='range']::-moz-range-progress {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--tube);
+}
+
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  margin-top: -7px;
+  border: none;
+  border-radius: 50%;
+  background: var(--core);
+  box-shadow:
+    0 0 4px color-mix(in srgb, var(--tube) calc(var(--glow) * 100%), transparent),
+    0 0 14px color-mix(in srgb, var(--halo) calc(var(--glow) * 100%), transparent);
+}
+
+input[type='range']::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border: none;
+  border-radius: 50%;
+  background: var(--core);
+  box-shadow:
+    0 0 4px color-mix(in srgb, var(--tube) calc(var(--glow) * 100%), transparent),
+    0 0 14px color-mix(in srgb, var(--halo) calc(var(--glow) * 100%), transparent);
+}
+
+input[type='range']:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+input[type='range']:focus-visible::-webkit-slider-thumb {
+  outline: 2px solid var(--core);
+  outline-offset: 3px;
+}
+
+input[type='range']:focus-visible::-moz-range-thumb {
+  outline: 2px solid var(--core);
+  outline-offset: 3px;
+}
+
+/* Choix exclusif : des boutons côte à côte, un seul allumé. */
+.segmented {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.segmented legend {
+  padding: 0;
+  margin-bottom: 0.3rem;
+  font-size: var(--text-s);
+  font-weight: 600;
+  color: var(--chalk-soft);
+}
+
+.segmented input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.segmented label {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.25rem;
+  padding: 0.25rem 0.85rem;
+  border: 2px solid var(--glass);
+  border-radius: 999px;
+  font-size: var(--text-xs);
+  font-weight: 650;
+  color: var(--chalk-soft);
+  cursor: pointer;
+  user-select: none;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    color 0.15s ease,
+    background-color 0.15s ease;
+}
+
+.segmented label:hover {
+  border-color: var(--frost);
+  color: var(--chalk);
+}
+
+.segmented input:checked + label {
+  border-color: var(--tube);
+  background: color-mix(in srgb, var(--tube) 16%, transparent);
+  color: var(--core);
+  box-shadow:
+    0 0 5px color-mix(in srgb, var(--tube) calc(var(--glow) * 100%), transparent),
+    0 0 14px color-mix(in srgb, var(--halo) calc(var(--glow) * 70%), transparent);
+}
+
+.segmented input:focus-visible + label {
+  outline: 2px solid var(--core);
+  outline-offset: 3px;
+}
+
+/* Case à cocher en petit interrupteur à bascule. */
+.toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: var(--target);
+  font-size: var(--text-s);
+  font-weight: 600;
+  color: var(--chalk);
+  cursor: pointer;
+  user-select: none;
+}
+
+.toggle input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+
+.toggle-track {
+  position: relative;
+  flex: none;
+  width: 2.6rem;
+  height: 1.4rem;
+  border: 2px solid var(--glass);
+  border-radius: 999px;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.toggle-track::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0.18rem;
+  width: 0.8rem;
+  height: 0.8rem;
+  border-radius: 50%;
+  background: var(--frost);
+  transform: translateY(-50%);
+  transition:
+    transform 0.18s ease,
+    background-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.toggle input:checked + .toggle-track {
+  border-color: var(--tube);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--halo) calc(var(--glow) * 70%), transparent);
+}
+
+.toggle input:checked + .toggle-track::after {
+  background: var(--core);
+  transform: translate(1.18rem, -50%);
+  box-shadow:
+    0 0 4px color-mix(in srgb, var(--tube) calc(var(--glow) * 100%), transparent),
+    0 0 10px color-mix(in srgb, var(--halo) calc(var(--glow) * 100%), transparent);
+}
+
+.toggle input:focus-visible + .toggle-track {
+  outline: 2px solid var(--core);
+  outline-offset: 3px;
+}
+
+/* Afficheur : chaque chiffre dans son ampoule, comme un tube Nixie (qui est, lui aussi, rempli de néon). */
+.nixie {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 0.18em;
+  font-family: var(--font-sign);
+  font-size: var(--text-2xl);
+  line-height: 1;
+  color: var(--c);
+}
+
+.nixie-digit {
+  display: inline-grid;
+  place-items: center;
+  min-width: 0.86em;
+  padding: 0.2em 0.08em 0.16em;
+  border: 1px solid var(--glass);
+  border-radius: 0.36em 0.36em 0.14em 0.14em;
+  background:
+    radial-gradient(
+      120% 90% at 50% 100%,
+      color-mix(in srgb, var(--h) calc(var(--glow) * 22%), transparent),
+      transparent 70%
+    ),
+    color-mix(in srgb, var(--wall) 70%, var(--plate));
+  text-shadow:
+    0 0 0.05em var(--c),
+    0 0 0.16em color-mix(in srgb, var(--t) calc(var(--glow) * 100%), transparent),
+    0 0 0.45em color-mix(in srgb, var(--h) calc(var(--glow) * 100%), transparent);
+}
+
+.nixie-sep {
+  padding-bottom: 0.16em;
+  color: var(--chalk-soft);
+  font-size: 0.7em;
+}
+
+.nixie-unit {
+  margin-left: 0.3em;
+  padding-bottom: 0.2em;
+  font-family: var(--font-body);
+  font-size: 0.42em;
+  font-weight: 600;
+  color: var(--chalk-soft);
+}
+
+.nixie-digit.is-changed {
+  animation: falter 0.32s linear;
+}
+
+:root[data-tubes='off'] .nixie-digit {
+  color: var(--chalk);
+  text-shadow: none;
+}
+
+/* Scène : le cadre d'une simulation. */
+.stage {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--wall) 80%, black);
+  touch-action: none;
+}
+
+.stage canvas {
+  width: 100%;
+  height: 100%;
+}
+
+.stage-hud {
+  position: absolute;
+  top: 0.6rem;
+  left: 0.75rem;
+  display: grid;
+  gap: 0.1rem;
+  pointer-events: none;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  line-height: 1.45;
+  color: var(--chalk-soft);
+  text-shadow: 0 0 6px var(--wall);
+}
+
+.stage-hud b {
+  font-weight: 600;
+  color: var(--chalk);
+}
+
+.stage-hint {
+  position: absolute;
+  left: 0.75rem;
+  right: 0.75rem;
+  bottom: 0.6rem;
+  pointer-events: none;
+  font-size: var(--text-xs);
+  color: var(--chalk-soft);
+  text-shadow: 0 0 6px var(--wall);
+}
+
+/* Amorçage du premier chargement (classe ignite, posée par public/init.js) et rallumage au changement de gaz
+   (classe regas, posée par lib/ui/theme.ts) pour les tubes d'un seul tenant. */
+:root.ignite .strike-on-load {
+  animation: strike 1s linear var(--strike-delay, 150ms) both;
+}
+
+:root.regas .strike-on-load {
+  animation: strike 0.7s linear both;
+}

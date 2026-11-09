@@ -1,0 +1,82 @@
+---
+// Pied de page : la marque telle qu'elle a été dessinée, la façon dont le site est fait, ce qu'il retient.
+import { Image } from 'astro:assets';
+import logo from '../assets/images/technidev.png';
+---
+
+<footer class="site-footer">
+  <div class="container site-footer-inner">
+    <div class="footer-brand">
+      <Image class="footer-logo" src={logo} alt="TechniDev" width={199} height={56} loading="lazy" />
+      <p class="small muted">TechniDev est le nom que je donne à ce que je fabrique.</p>
+    </div>
+
+    <div class="footer-notes small muted">
+      <p>
+        Ce site a été conçu avec Claude Code : je décris, je décide et je relis, l'IA écrit le code.{' '}
+        <a href="/#fabrication">Comment c'est fait</a>
+      </p>
+      <p>Aucun cookie, aucun traceur. Le site retient seulement le gaz choisi, dans ce navigateur.</p>
+    </div>
+
+    <nav class="footer-links small" aria-label="Liens du pied de page">
+      <a href="/labo">Labo</a>
+      <a href="/projets">Projets</a>
+      <a href="https://github.com/MathieuPaillard" rel="noopener">GitHub</a>
+    </nav>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: var(--space-8);
+    padding-block: var(--space-6) var(--space-7);
+    border-top: 1px solid var(--line);
+  }
+
+  .site-footer-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) auto;
+    gap: var(--space-5) var(--space-7);
+    align-items: start;
+  }
+
+  .footer-brand {
+    display: grid;
+    gap: var(--space-3);
+  }
+
+  .footer-logo {
+    width: 9.5rem;
+    height: auto;
+  }
+
+  .footer-notes {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .footer-links {
+    display: grid;
+    gap: var(--space-1);
+  }
+
+  .footer-links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2rem;
+    font-weight: 600;
+  }
+
+  @media (max-width: 52rem) {
+    .site-footer-inner {
+      grid-template-columns: 1fr;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-4);
+    }
+  }
+</style>
