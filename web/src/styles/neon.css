@@ -503,6 +503,29 @@ input[type='range']:focus-visible {
   box-shadow: none;
 }
 
+/* Curseur sans effet dans le réglage courant : verre éteint. */
+input[type='range']:disabled {
+  cursor: not-allowed;
+}
+
+input[type='range']:disabled::-webkit-slider-runnable-track {
+  background: var(--glass);
+}
+
+input[type='range']:disabled::-moz-range-progress {
+  background: var(--glass);
+}
+
+input[type='range']:disabled::-webkit-slider-thumb {
+  background: var(--frost);
+  box-shadow: none;
+}
+
+input[type='range']:disabled::-moz-range-thumb {
+  background: var(--frost);
+  box-shadow: none;
+}
+
 input[type='range']:focus-visible::-webkit-slider-thumb {
   outline: 2px solid var(--core);
   outline-offset: 3px;

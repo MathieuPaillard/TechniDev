@@ -1,0 +1,129 @@
+---
+import Demo from '../../layouts/Demo.astro';
+import { PRESET_LABELS, type PresetName } from '../../lib/labo/waves/physics';
+
+const presets = Object.entries(PRESET_LABELS) as [PresetName, string][];
+---
+
+<Demo slug="ondes">
+  <Fragment slot="stage">
+    <div class="stage" id="waves-stage">
+      <canvas id="waves-canvas" aria-label="Simulation d'ondes : des sources émettent des cercles qui grandissent. Les commandes sont à côté."
+      ></canvas>
+      <div class="stage-hud" aria-hidden="true">
+        <span>Sources <b id="waves-count">0</b></span>
+        <span>Fronts <b id="waves-rings">0</b></span>
+        <span>Mach le plus élevé <b id="waves-mach">0</b></span>
+      </div>
+      <p class="stage-hint" id="waves-hint">
+        Cliquer pour poser une source. Glisser pour la lancer.
+      </p>
+    </div>
+    <p class="visually-hidden" role="status" id="waves-status"></p>
+  </Fragment>
+
+  <Fragment slot="controls">
+    <fieldset class="segmented">
+      <legend>Scénario</legend>
+      {
+        presets.map(([name, label], index) => (
+          <>
+            <input type="radio" name="waves-preset" id={`waves-preset-${name}`} value={name} checked={index === 0} />
+            <label for={`waves-preset-${name}`}>{label}</label>
+          </>
+        ))
+      }
+    </fieldset>
+
+    <fieldset class="segmented">
+      <legend>Affichage</legend>
+      <input type="radio" name="waves-view" id="waves-view-rings" value="rings" checked />
+      <label for="waves-view-rings">Fronts d'onde</label>
+      <input type="radio" name="waves-view" id="waves-view-field" value="field" />
+      <label for="waves-view-field">Interférences</label>
+    </fieldset>
+
+    <div class="control-group">
+      <label class="field">
+        <span class="field-label">
+          Vitesse de la source <span class="field-value" id="waves-source-speed-value">Mach 0,6</span>
+        </span>
+        <input type="range" id="waves-source-speed" min="0" max="2.5" step="0.05" value="0.6" />
+      </label>
+      <label class="field">
+        <span class="field-label">
+          Vitesse de l'onde <span class="field-value" id="waves-speed-value">90 px/s</span>
+        </span>
+        <input type="range" id="waves-speed" min="20" max="200" step="5" value="90" />
+      </label>
+      <label class="field">
+        <span class="field-label">
+          Un front toutes les <span class="field-value" id="waves-period-value">0,60 s</span>
+        </span>
+        <input type="range" id="waves-period" min="0.15" max="1.5" step="0.05" value="0.6" />
+      </label>
+      <label class="field">
+        <span class="field-label">
+          Masse de la prochaine source <span class="field-value" id="waves-mass-value">100</span>
+        </span>
+        <input type="range" id="waves-mass" min="0" max="100" step="1" value="40" />
+      </label>
+    </div>
+
+    <label class="toggle">
+      <input type="checkbox" id="waves-gravity" />
+      <span class="toggle-track"></span>
+      Les sources s'attirent
+    </label>
+
+    <div class="control-row">
+      <button class="btn" type="button" id="waves-play" aria-pressed="false">Pause</button>
+      <button class="btn btn-quiet" type="button" id="waves-clear">Tout effacer</button>
+    </div>
+  </Fragment>
+
+  <Fragment slot="notes">
+    <section>
+      <h2>D'où ça vient</h2>
+      <p>
+        D'un programme Java de 2025. Je voulais voir des figures d'interférences, avec plusieurs sources d'ondes. Puis
+        j'ai ajouté un peu de gravité newtonienne pour faire bouger les sources, et c'est devenu un petit système
+        planétaire qui laisse des ondes derrière lui.
+      </p>
+      <p class="demo-tags">
+        <span class="tag" data-making="hand">Programme d'origine écrit à la main</span>
+        <span class="tag" data-making="ai">Version web codée avec une IA</span>
+      </p>
+    </section>
+    <section>
+      <h2>Ce que fait la démo</h2>
+      <ul>
+        <li>Un front part de l'endroit où se trouvait la source, grandit à vitesse constante et s'efface.</li>
+        <li>
+          Une source qui avance serre ses fronts devant elle et les espace derrière : c'est l'effet Doppler.
+        </li>
+        <li>
+          Au-delà de Mach 1, elle va plus vite que ses propres ondes, qui s'empilent en cône. Les pointillés
+          montrent l'angle que prévoit le calcul.
+        </li>
+      </ul>
+    </section>
+    <section>
+      <h2>Ce qui a changé</h2>
+      <ul>
+        <li>
+          Le « ballet de 2025 » reprend le système du programme : mêmes masses, mêmes vitesses, une onde à 30 px/s.
+          Toutes les planètes y sont plus rapides que leur onde.
+        </li>
+        <li>
+          L'affichage « interférences » est nouveau. Il additionne les ondes des sources là où elles sont à
+          l'instant : exact si elles sont immobiles, approché si elles bougent.
+        </li>
+      </ul>
+    </section>
+  </Fragment>
+
+  <script>
+    import '../../lib/labo/waves/demo';
+  </script>
+</Demo>
