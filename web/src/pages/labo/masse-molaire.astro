@@ -50,7 +50,7 @@ const massFormat = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 3 });
             <tr>
               <th scope="col">Élément</th>
               <th scope="col" class="num">Atomes</th>
-              <th scope="col" class="num">Masse (g/mol)</th>
+              <th scope="col" class="num">Masse <span class="molar-unit">(g/mol)</span></th>
               <th scope="col" class="num">Part</th>
               <th scope="col"><span class="visually-hidden">Part, en barre</span></th>
             </tr>
@@ -169,12 +169,13 @@ const massFormat = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 3 });
 <style is:global>
   .molar {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-4);
-    min-width: 0;
   }
 
   .molar-result {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-4);
     padding: var(--space-5);
   }
@@ -453,8 +454,25 @@ const massFormat = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 3 });
     }
 
     .molar-bar-cell,
-    .molar-table th:last-child {
+    .molar-table th:last-child,
+    .molar-unit {
       display: none;
+    }
+
+    .molar-table {
+      font-size: var(--text-xs);
+    }
+
+    .molar-table th,
+    .molar-table td,
+    .molar-table tbody th {
+      padding-right: 0.4rem;
+    }
+
+    /* Le nom de l'élément passe sous son symbole. */
+    .molar-element {
+      display: grid;
+      gap: 0;
     }
   }
 

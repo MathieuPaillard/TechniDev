@@ -154,13 +154,13 @@ const examples: [string, string][] = [
 <style is:global>
   .gcd {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-4);
-    min-width: 0;
   }
 
   .gcd-inputs {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
     gap: var(--space-3) var(--space-4);
   }
 
@@ -260,7 +260,7 @@ const examples: [string, string][] = [
 
   .gcd-details {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
     gap: var(--space-5);
   }
 

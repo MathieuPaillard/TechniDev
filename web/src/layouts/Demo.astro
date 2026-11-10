@@ -57,6 +57,8 @@ const next = DEMOS[(index + 1) % DEMOS.length]!;
 <style is:global>
   .demo {
     display: grid;
+    /* minmax(0, …) : un contenu large (tableau, étiquette) ne peut pas élargir la colonne au-delà de l'écran. */
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-6);
     padding-block: var(--space-5) var(--space-6);
   }
@@ -145,7 +147,7 @@ const next = DEMOS[(index + 1) % DEMOS.length]!;
 
   .demo-notes {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr));
     gap: var(--space-6);
     padding-top: var(--space-5);
     border-top: 1px solid var(--line);
@@ -153,6 +155,7 @@ const next = DEMOS[(index + 1) % DEMOS.length]!;
 
   .demo-notes section {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--space-3);
     align-content: start;
   }
@@ -177,6 +180,12 @@ const next = DEMOS[(index + 1) % DEMOS.length]!;
     display: flex;
     flex-wrap: wrap;
     gap: var(--space-2);
+  }
+
+  /* Une étiquette longue passe à la ligne plutôt que de pousser la page. */
+  .demo-tags .tag {
+    white-space: normal;
+    border-radius: 0.9rem;
   }
 
   .demo-nav {
