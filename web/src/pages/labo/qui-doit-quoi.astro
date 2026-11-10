@@ -1,0 +1,362 @@
+---
+import Demo from '../../layouts/Demo.astro';
+---
+
+<Demo slug="qui-doit-quoi">
+  <Fragment slot="stage">
+    <div class="ledger">
+      <div class="stage ledger-stage" id="ledger-stage">
+        <canvas id="ledger-canvas" aria-label="Schéma : les membres en cercle, une flèche lumineuse par remboursement suggéré"></canvas>
+      </div>
+
+      <div class="ledger-columns">
+        <section class="ledger-block">
+          <h2>Les soldes</h2>
+          <ul class="ledger-balances" id="ledger-balances"></ul>
+          <p class="small muted" id="ledger-sum"></p>
+        </section>
+        <section class="ledger-block">
+          <h2>Pour tout solder</h2>
+          <ul class="ledger-settlements" id="ledger-settlements"></ul>
+        </section>
+      </div>
+
+      <section class="ledger-block">
+        <h2>Les opérations</h2>
+        <ul class="ledger-operations" id="ledger-operations"></ul>
+      </section>
+      <p class="visually-hidden" role="status" id="ledger-status"></p>
+    </div>
+  </Fragment>
+
+  <Fragment slot="controls">
+    <form class="control-group" id="ledger-form" novalidate>
+      <h2>Nouvelle dépense</h2>
+      <label class="field">
+        <span class="field-label">Libellé</span>
+        <input class="input" id="ledger-label" type="text" maxlength="40" autocomplete="off" placeholder="Pizzas" />
+      </label>
+      <div class="field">
+        <label class="field-label" for="ledger-amount">Montant, en euros</label>
+        <input
+          class="input"
+          id="ledger-amount"
+          type="text"
+          inputmode="decimal"
+          autocomplete="off"
+          placeholder="24,90"
+          aria-describedby="ledger-amount-error"
+        />
+        <p class="field-error" id="ledger-amount-error" role="alert"></p>
+      </div>
+      <label class="field">
+        <span class="field-label">Payé par</span>
+        <select class="input" id="ledger-payer"></select>
+      </label>
+      <fieldset class="ledger-who">
+        <legend class="field-label">Pour</legend>
+        <div class="ledger-who-list" id="ledger-who"></div>
+        <p class="field-error" id="ledger-who-error" role="alert"></p>
+      </fieldset>
+      <button class="btn" type="submit">Ajouter la dépense</button>
+    </form>
+
+    <div class="control-group">
+      <h2>Les membres</h2>
+      <div class="ledger-members" id="ledger-members"></div>
+      <div class="control-row">
+        <button class="btn btn-quiet btn-small" type="button" id="ledger-add-member">Ajouter un membre</button>
+        <button class="btn btn-quiet btn-small" type="button" id="ledger-remove-member">Retirer le dernier</button>
+      </div>
+      <p class="field-error" id="ledger-member-error" role="alert"></p>
+    </div>
+
+    <div class="control-row">
+      <button class="btn btn-quiet btn-small" type="button" id="ledger-reset">Reprendre l'exemple</button>
+      <button class="btn btn-quiet btn-small" type="button" id="ledger-clear">Tout effacer</button>
+    </div>
+  </Fragment>
+
+  <Fragment slot="notes">
+    <section>
+      <h2>D'où ça vient</h2>
+      <p>
+        De Dépenses partagées, une application en ligne depuis novembre 2026 : des groupes, des invitations, des
+        dépenses ponctuelles ou récurrentes, des remboursements. La démo en reprend le cœur, le calcul de qui doit
+        combien à qui.
+      </p>
+      <p class="demo-tags">
+        <span class="tag" data-making="ai">Application conçue et pilotée, codée avec une IA</span>
+        <span class="tag" data-making="ai">Démo codée avec une IA</span>
+      </p>
+      <p><a href="https://hello-depenses.netlify.app" rel="noopener">Ouvrir Dépenses partagées</a></p>
+    </section>
+    <section>
+      <h2>Ce que fait la démo</h2>
+      <ul>
+        <li>
+          Tout se compte en centimes entiers, jamais en nombres à virgule : 0,10 € plus 0,20 € font exactement
+          0,30 €.
+        </li>
+        <li>
+          Dans un partage égal, les centimes qui restent vont aux premiers de la liste : 50,00 € à trois font
+          16,67 €, 16,67 € et 16,66 €.
+        </li>
+        <li>Le solde de chacun vaut ce qu'il a payé moins ce qu'il doit. La somme des soldes fait toujours zéro.</li>
+        <li>
+          Pour solder, le plus gros débiteur rembourse le plus gros créancier, et l'on recommence : jamais plus de
+          virements que de membres moins un.
+        </li>
+      </ul>
+    </section>
+    <section>
+      <h2>Ce qui a changé</h2>
+      <ul>
+        <li>Ici, rien n'est enregistré : tout vit dans la page et disparaît quand on la recharge.</li>
+        <li>
+          L'application a en plus des comptes, des parts inégales, des dettes récurrentes, un historique des
+          corrections et une validation des opérations par les personnes concernées.
+        </li>
+        <li>Les prénoms et les dépenses de l'exemple sont inventés.</li>
+      </ul>
+    </section>
+  </Fragment>
+
+  <script>
+    import '../../lib/labo/money/demo';
+  </script>
+</Demo>
+
+<style is:global>
+  .ledger {
+    display: grid;
+    gap: var(--space-5);
+    min-width: 0;
+  }
+
+  .demo-stage .stage.ledger-stage {
+    aspect-ratio: 16 / 8.2;
+    min-height: 15rem;
+    touch-action: auto;
+  }
+
+  .demo-stage .stage.ledger-stage canvas {
+    cursor: default;
+  }
+
+  /* Téléphone : un schéma plus haut, pour que les flèches et leurs montants ne se chevauchent pas. */
+  @media (max-width: 40rem) {
+    .demo-stage .stage.ledger-stage {
+      aspect-ratio: 1 / 1.02;
+    }
+  }
+
+  .ledger-columns {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+    gap: var(--space-5);
+  }
+
+  .ledger-block {
+    display: grid;
+    gap: var(--space-3);
+    align-content: start;
+    min-width: 0;
+  }
+
+  .ledger-block h2 {
+    font-size: var(--text-l);
+  }
+
+  .ledger-balances,
+  .ledger-settlements,
+  .ledger-operations {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .ledger-balances li,
+  .ledger-settlements li,
+  .ledger-operations li {
+    max-width: none;
+  }
+
+  /* Un solde : le nom, la phrase, puis une barre qui part du milieu, à droite si on lui doit, à gauche s'il doit. */
+  .ledger-balance {
+    display: grid;
+    grid-template-columns: minmax(4.5rem, auto) 1fr;
+    align-items: baseline;
+    gap: 0.1rem var(--space-3);
+    font-size: var(--text-s);
+  }
+
+  .ledger-balance-name {
+    font-weight: 700;
+    color: var(--chalk);
+  }
+
+  .ledger-balance-text {
+    color: var(--chalk-soft);
+  }
+
+  .ledger-balance-text b {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--chalk);
+  }
+
+  .ledger-bar {
+    grid-column: 1 / -1;
+    position: relative;
+    height: 6px;
+    margin-top: 0.2rem;
+    border-radius: 3px;
+    background: var(--glass);
+  }
+
+  .ledger-bar::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: -3px;
+    bottom: -3px;
+    width: 1px;
+    background: var(--frost);
+  }
+
+  .ledger-bar-fill {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 0;
+    border-radius: 3px;
+    transition:
+      width 0.4s ease,
+      left 0.4s ease;
+  }
+
+  .ledger-bar-fill.is-owed {
+    left: 50%;
+    background: var(--core);
+    box-shadow:
+      0 0 4px color-mix(in srgb, var(--tube) calc(var(--glow) * 100%), transparent),
+      0 0 12px color-mix(in srgb, var(--halo) calc(var(--glow) * 100%), transparent);
+  }
+
+  .ledger-bar-fill.is-owing {
+    background: var(--phosphor);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--phosphor) calc(var(--glow) * 70%), transparent);
+  }
+
+  .ledger-settlement {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2) var(--space-3);
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    font-size: var(--text-s);
+  }
+
+  .ledger-settlement b {
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--core);
+  }
+
+  .ledger-even {
+    font-size: var(--text-s);
+    color: var(--chalk-soft);
+  }
+
+  .ledger-operation {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    gap: 0.1rem var(--space-3);
+    padding: 0.5rem 0;
+    border-top: 1px solid var(--line);
+    font-size: var(--text-s);
+  }
+
+  .ledger-operation-label {
+    font-weight: 700;
+    color: var(--chalk);
+    overflow-wrap: anywhere;
+  }
+
+  .ledger-operation-amount {
+    grid-row: 1;
+    grid-column: 2;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .ledger-operation-label {
+    grid-row: 1;
+    grid-column: 1;
+  }
+
+  .ledger-operation-detail {
+    grid-row: 2;
+    grid-column: 1 / 3;
+    color: var(--chalk-soft);
+  }
+
+  .ledger-operation .btn {
+    grid-row: 1 / span 2;
+    grid-column: 3;
+  }
+
+  .ledger-who {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+  }
+
+  .ledger-who legend {
+    padding: 0;
+    margin-bottom: 0.2rem;
+  }
+
+  .ledger-who-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 var(--space-4);
+  }
+
+  .ledger-check {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    min-height: 2rem;
+    font-size: var(--text-s);
+    cursor: pointer;
+  }
+
+  .ledger-check input {
+    width: 1.05rem;
+    height: 1.05rem;
+    margin: 0;
+    accent-color: var(--tube);
+  }
+
+  .ledger-members {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.4rem;
+  }
+
+  .ledger-members .input {
+    min-height: 2.4rem;
+    padding-block: 0.3rem;
+    font-size: var(--text-s);
+  }
+</style>
