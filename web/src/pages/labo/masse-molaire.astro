@@ -1,0 +1,482 @@
+---
+import Demo from '../../layouts/Demo.astro';
+import { ELEMENTS, NOBLE_GAS_VARS } from '../../lib/labo/chemistry/elements';
+
+const examples: [string, string][] = [
+  ['Eau', 'H2O'],
+  ['Sel de table', 'NaCl'],
+  ['Glucose', 'C6H12O6'],
+  ['Chaux éteinte', 'Ca(OH)2'],
+  ['Sulfate de cuivre hydraté', 'CuSO4·5H2O'],
+  ['Bleu de Prusse', 'Fe4[Fe(CN)6]3'],
+];
+const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '(', ')', '[', ']', '·'];
+const massFormat = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 3 });
+---
+
+<Demo slug="masse-molaire">
+  <Fragment slot="stage">
+    <div class="molar">
+      <div class="field">
+        <label class="field-label" for="molar-input">Formule brute</label>
+        <input
+          class="input molar-input"
+          id="molar-input"
+          type="text"
+          value="C6H12O6"
+          autocomplete="off"
+          autocapitalize="off"
+          autocorrect="off"
+          spellcheck="false"
+          maxlength="80"
+          aria-describedby="molar-error"
+        />
+        <p class="field-error" id="molar-error" role="alert"></p>
+      </div>
+
+      <div class="molar-result plate">
+        <p class="molar-formula tube" id="molar-display" aria-hidden="true">C₆H₁₂O₆</p>
+        <div class="molar-mass">
+          <span class="nixie" id="molar-nixie" aria-hidden="true"></span>
+          <p class="small muted" id="molar-note" hidden>
+            Valeur indicative : un élément de la formule n'a pas d'isotope stable.
+          </p>
+        </div>
+        <p class="visually-hidden" role="status" id="molar-status"></p>
+
+        <table class="molar-table" id="molar-table">
+          <caption class="visually-hidden">Composition de la formule</caption>
+          <thead>
+            <tr>
+              <th scope="col">Élément</th>
+              <th scope="col" class="num">Atomes</th>
+              <th scope="col" class="num">Masse (g/mol)</th>
+              <th scope="col" class="num">Part</th>
+              <th scope="col"><span class="visually-hidden">Part, en barre</span></th>
+            </tr>
+          </thead>
+          <tbody id="molar-rows"></tbody>
+        </table>
+      </div>
+
+      <div class="ptable-scroll" tabindex="-1">
+        <div class="ptable" id="molar-ptable" role="group" aria-label="Tableau périodique : choisir un élément l'ajoute à la formule">
+          {
+            ELEMENTS.map((element) => (
+              <button
+                type="button"
+                class:list={[
+                  'pcell',
+                  `pr${element.row}`,
+                  `pc${element.column}`,
+                  NOBLE_GAS_VARS[element.symbol] ? `pgas-${element.symbol.toLowerCase()}` : null,
+                ]}
+                data-symbol={element.symbol}
+                data-row={element.row}
+                data-column={element.column}
+                tabindex={element.number === 1 ? 0 : -1}
+                aria-label={`${element.name}, ${element.symbol}, numéro ${element.number}, ${massFormat.format(element.mass)} grammes par mole`}
+                title={`${element.name} · ${massFormat.format(element.mass)} g/mol`}
+              >
+                <span class="pcell-number" aria-hidden="true">
+                  {element.number}
+                </span>
+                <span class="pcell-symbol" aria-hidden="true">
+                  {element.symbol}
+                </span>
+                <span class="pcell-count" aria-hidden="true" />
+              </button>
+            ))
+          }
+        </div>
+      </div>
+      <p class="ptable-hint small muted">Le tableau est plus large que l'écran : il se fait glisser de côté.</p>
+    </div>
+  </Fragment>
+
+  <Fragment slot="controls">
+    <div class="control-group">
+      <h2>Chiffres et parenthèses</h2>
+    <div class="keypad" role="group" aria-label="Chiffres et parenthèses">
+      {
+        keys.map((key) => (
+          <button type="button" class="btn btn-quiet btn-small keypad-key" data-key={key} aria-label={key === '·' ? 'Point d’hydrate' : key}>
+            {key}
+          </button>
+        ))
+      }
+      <button type="button" class="btn btn-quiet btn-small keypad-key keypad-wide" id="molar-backspace">Effacer</button>
+      <button type="button" class="btn btn-quiet btn-small keypad-key keypad-wide" id="molar-clear">Tout vider</button>
+    </div>
+    </div>
+
+    <div class="control-group">
+      <h2>Essayer avec</h2>
+      <div class="control-row">
+        {
+          examples.map(([name, formula]) => (
+            <button type="button" class="btn btn-quiet btn-small" data-example={formula}>
+              {name}
+            </button>
+          ))
+        }
+      </div>
+    </div>
+  </Fragment>
+
+  <Fragment slot="notes">
+    <section>
+      <h2>D'où ça vient</h2>
+      <p>
+        De Calcul Masse Molaire, ma première appli Android, écrite en Java et publiée sur le Play Store en décembre
+        2022. On y tape une formule, elle rend la masse molaire. Je l'ai traduite en plusieurs langues et tenue à
+        jour jusqu'en 2025.
+      </p>
+      <p class="demo-tags">
+        <span class="tag" data-making="hand">Appli d'origine écrite à la main</span>
+        <span class="tag" data-making="ai">Version web codée avec une IA</span>
+      </p>
+    </section>
+    <section>
+      <h2>Ce que fait la démo</h2>
+      <ul>
+        <li>Elle lit la formule, compte les atomes de chaque élément et additionne leurs masses.</li>
+        <li>Les parenthèses et les crochets s'emboîtent : Fe4[Fe(CN)6]3 compte 7 fers, 18 carbones, 18 azotes.</li>
+        <li>Le point sépare un sel de son eau : CuSO4·5H2O. Il se tape aussi « . » ou « * ».</li>
+        <li>Une formule mal écrite dit ce qui ne va pas, et où.</li>
+      </ul>
+    </section>
+    <section>
+      <h2>Ce qui a changé</h2>
+      <ul>
+        <li>
+          Les masses sont les valeurs abrégées de l'IUPAC. La table de l'appli datait de 2022 et laissait les
+          éléments 114 à 118 sans masse.
+        </li>
+        <li>Le tableau périodique sert de clavier, et s'allume aux éléments de la formule.</li>
+        <li>
+          Les cinq gaz qui éclairent ce site y brillent de leur propre couleur : hélium, néon, argon, krypton, xénon.
+        </li>
+      </ul>
+    </section>
+  </Fragment>
+
+  <script>
+    import '../../lib/labo/chemistry/demo';
+  </script>
+</Demo>
+
+<style is:global>
+  .molar {
+    display: grid;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+
+  .molar-result {
+    display: grid;
+    gap: var(--space-4);
+    padding: var(--space-5);
+  }
+
+  .molar-formula {
+    font-family: var(--font-sign);
+    font-size: clamp(1.9rem, 5vw, 3.1rem);
+    line-height: 1.15;
+    overflow-wrap: anywhere;
+    max-width: none;
+  }
+
+  .molar-formula.is-invalid {
+    color: var(--frost);
+    text-shadow: none;
+  }
+
+  .molar-mass {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .molar-mass .nixie {
+    font-size: clamp(2rem, 6vw, 3.4rem);
+    flex-wrap: wrap;
+    row-gap: 0.2em;
+  }
+
+  .molar-table {
+    width: 100%;
+    font-size: var(--text-s);
+  }
+
+  .molar-table th {
+    padding: 0 0.6rem 0.4rem 0;
+    font-weight: 600;
+    text-align: left;
+    color: var(--chalk-soft);
+    white-space: nowrap;
+  }
+
+  .molar-table td,
+  .molar-table tbody th {
+    padding: 0.4rem 0.6rem 0.4rem 0;
+    border-top: 1px solid var(--line);
+    vertical-align: middle;
+  }
+
+  .molar-table tbody th {
+    font-weight: 400;
+    color: var(--chalk);
+  }
+
+  .molar-table .num {
+    text-align: right;
+    font-family: var(--font-mono);
+  }
+
+  .molar-table th.num {
+    font-family: var(--font-body);
+  }
+
+  .molar-element {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+
+  .molar-element b {
+    min-width: 1.6em;
+    font-family: var(--font-sign);
+    font-size: 1.15rem;
+    font-weight: 400;
+    color: var(--core);
+  }
+
+  .molar-bar-cell {
+    width: 34%;
+    padding-right: 0;
+  }
+
+  /* Barre de composition : un tube dont la longueur allumée dit la part de l'élément. */
+  .molar-bar {
+    display: block;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--glass);
+  }
+
+  .molar-bar-fill {
+    display: block;
+    height: 100%;
+    width: 0;
+    border-radius: 3px;
+    background: var(--core);
+    box-shadow:
+      0 0 4px color-mix(in srgb, var(--tube) calc(var(--glow) * 100%), transparent),
+      0 0 12px color-mix(in srgb, var(--halo) calc(var(--glow) * 100%), transparent);
+    transition: width 0.35s ease;
+  }
+
+  /* Le tableau périodique : 18 colonnes, les lanthanides et les actinides rangés dessous. */
+  .ptable-scroll {
+    overflow-x: auto;
+    padding: 6px 2px 10px;
+    scrollbar-width: thin;
+  }
+
+  .ptable {
+    display: grid;
+    grid-template-columns: repeat(18, minmax(2.3rem, 1fr));
+    gap: 3px;
+    min-width: 44rem;
+  }
+
+  .pcell {
+    --t: var(--tube);
+    --h: var(--halo);
+    --c: var(--core);
+    position: relative;
+    display: grid;
+    place-items: center;
+    aspect-ratio: 1 / 1.08;
+    min-width: 0;
+    padding: 0.55rem 0 0.1rem;
+    border: 1px solid var(--glass);
+    border-radius: 5px;
+    background: color-mix(in srgb, var(--plate) 60%, transparent);
+    color: var(--frost);
+    transition:
+      border-color 0.15s ease,
+      box-shadow 0.2s ease,
+      background-color 0.2s ease;
+  }
+
+  .pcell-number {
+    position: absolute;
+    top: 1px;
+    left: 3px;
+    font-family: var(--font-mono);
+    font-size: 0.56rem;
+    line-height: 1.2;
+    color: var(--chalk-soft);
+  }
+
+  .pcell-symbol {
+    font-family: var(--font-sign);
+    font-size: clamp(0.85rem, 1.25vw, 1.12rem);
+    line-height: 1;
+  }
+
+  .pcell-count {
+    position: absolute;
+    top: 1px;
+    right: 3px;
+    font-family: var(--font-mono);
+    font-size: 0.6rem;
+    font-weight: 700;
+    line-height: 1.2;
+    color: var(--phosphor);
+  }
+
+  .pcell:hover {
+    border-color: var(--t);
+    color: var(--chalk);
+  }
+
+  .pcell:focus-visible {
+    z-index: 1;
+    border-radius: 5px;
+  }
+
+  /* Les gaz du site portent leur propre couleur. */
+  .pgas-he {
+    --t: var(--gas-he);
+    --h: #ff9440;
+    --c: #fff6e6;
+  }
+
+  .pgas-ne {
+    --t: var(--gas-ne);
+    --h: #ff2800;
+    --c: #fff0e8;
+  }
+
+  .pgas-ar {
+    --t: var(--gas-ar);
+    --h: #2b6bff;
+    --c: #eaf6ff;
+  }
+
+  .pgas-kr {
+    --t: var(--gas-kr);
+    --h: #2ef59a;
+    --c: #f0fff6;
+  }
+
+  .pgas-xe {
+    --t: var(--gas-xe);
+    --h: #7a4dff;
+    --c: #f3efff;
+  }
+
+  .pcell[class*='pgas-'] {
+    color: color-mix(in srgb, var(--t) 75%, var(--wall));
+  }
+
+  /* Élément présent dans la formule : son tube s'allume. */
+  .pcell.is-lit {
+    border-color: var(--t);
+    background: color-mix(in srgb, var(--t) 12%, var(--plate));
+    color: var(--c);
+    box-shadow:
+      0 0 4px color-mix(in srgb, var(--t) calc(var(--glow) * 100%), transparent),
+      0 0 14px color-mix(in srgb, var(--h) calc(var(--glow) * 85%), transparent),
+      inset 0 0 8px color-mix(in srgb, var(--t) calc(var(--glow) * 35%), transparent);
+  }
+
+  .pcell.is-lit .pcell-symbol {
+    text-shadow:
+      0 0 0.15em color-mix(in srgb, var(--t) calc(var(--glow) * 100%), transparent),
+      0 0 0.6em color-mix(in srgb, var(--h) calc(var(--glow) * 100%), transparent);
+  }
+
+  .pr1 { grid-row: 1; }
+  .pr2 { grid-row: 2; }
+  .pr3 { grid-row: 3; }
+  .pr4 { grid-row: 4; }
+  .pr5 { grid-row: 5; }
+  .pr6 { grid-row: 6; }
+  .pr7 { grid-row: 7; }
+  .pr8 { grid-row: 8; margin-top: 0.5rem; }
+  .pr9 { grid-row: 9; }
+  .pc1 { grid-column: 1; }
+  .pc2 { grid-column: 2; }
+  .pc3 { grid-column: 3; }
+  .pc4 { grid-column: 4; }
+  .pc5 { grid-column: 5; }
+  .pc6 { grid-column: 6; }
+  .pc7 { grid-column: 7; }
+  .pc8 { grid-column: 8; }
+  .pc9 { grid-column: 9; }
+  .pc10 { grid-column: 10; }
+  .pc11 { grid-column: 11; }
+  .pc12 { grid-column: 12; }
+  .pc13 { grid-column: 13; }
+  .pc14 { grid-column: 14; }
+  .pc15 { grid-column: 15; }
+  .pc16 { grid-column: 16; }
+  .pc17 { grid-column: 17; }
+  .pc18 { grid-column: 18; }
+
+  .molar-input {
+    font-family: var(--font-mono);
+    font-size: 1.2rem;
+  }
+
+  .ptable-hint {
+    display: none;
+  }
+
+  @media (max-width: 47rem) {
+    .ptable-hint {
+      display: block;
+    }
+  }
+
+  /* Petit écran : les chiffres ne se coupent pas, la barre laisse la place aux nombres. */
+  .molar-table td.num {
+    white-space: nowrap;
+  }
+
+  @media (max-width: 40rem) {
+    .molar-result {
+      padding: var(--space-4);
+    }
+
+    .molar-bar-cell,
+    .molar-table th:last-child {
+      display: none;
+    }
+  }
+
+  .keypad {
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.35rem;
+  }
+
+  .keypad-key {
+    padding-inline: 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-s);
+  }
+
+  .keypad-wide {
+    grid-column: span 2;
+    font-family: var(--font-body);
+    font-size: var(--text-xs);
+  }
+
+  .keypad-wide:last-child {
+    grid-column: span 3;
+  }
+</style>

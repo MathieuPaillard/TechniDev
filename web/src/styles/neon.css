@@ -781,3 +781,7 @@ input[type='range']:focus-visible::-moz-range-thumb {
 :root.regas .strike-on-load {
   animation: strike 0.7s linear both;
 }
+
+.nixie-gap {
+  width: 0.14em;
+}
