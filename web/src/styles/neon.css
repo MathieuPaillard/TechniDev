@@ -738,10 +738,13 @@ input[type='range']:focus-visible::-moz-range-thumb {
 
 .stage-hud {
   position: absolute;
-  top: 0.6rem;
-  left: 0.75rem;
+  top: 0.5rem;
+  left: 0.5rem;
   display: grid;
   gap: 0.1rem;
+  padding: 0.3rem 0.55rem;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--wall) 78%, transparent);
   pointer-events: none;
   font-family: var(--font-mono);
   font-size: var(--text-xs);
@@ -757,9 +760,12 @@ input[type='range']:focus-visible::-moz-range-thumb {
 
 .stage-hint {
   position: absolute;
-  left: 0.75rem;
-  right: 0.75rem;
-  bottom: 0.6rem;
+  left: 0.5rem;
+  bottom: 0.5rem;
+  max-width: calc(100% - 1rem);
+  padding: 0.25rem 0.55rem;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--wall) 78%, transparent);
   pointer-events: none;
   font-size: var(--text-xs);
   color: var(--chalk-soft);

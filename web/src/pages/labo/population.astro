@@ -1,0 +1,173 @@
+---
+import Demo from '../../layouts/Demo.astro';
+---
+
+<Demo slug="population">
+  <Fragment slot="stage">
+    <div class="stage" id="population-stage">
+      <canvas id="population-canvas" aria-label="Simulation d'une population : des points qui se déplacent, des plantes en triangle. Les commandes sont à côté."
+      ></canvas>
+      <div class="stage-hud" aria-hidden="true">
+        <span>Année <b id="population-year">0</b></span>
+        <span>Population <b id="population-count">0</b></span>
+        <span>Couples <b id="population-couples">0</b></span>
+        <span>Plantes <b id="population-plants">0</b></span>
+      </div>
+      <p class="stage-hint" id="population-hint">Cliquer pour semer une plante.</p>
+    </div>
+    <figure class="chart plate">
+      <figcaption class="chart-legend small">
+        <span class="chart-key chart-key-people">Population <b id="population-legend-people">0</b></span>
+        <span class="chart-key chart-key-plants">Plantes <b id="population-legend-plants">0</b></span>
+        <span class="muted">Naissances <b id="population-births">0</b></span>
+        <span class="muted">Décès <b id="population-deaths">0</b></span>
+        <span class="muted">Plantes mangées <b id="population-eaten">0</b></span>
+      </figcaption>
+      <div class="chart-frame">
+        <canvas id="population-chart" aria-label="Courbes de la population et des plantes au fil des années"></canvas>
+      </div>
+    </figure>
+    <p class="visually-hidden" role="status" id="population-status"></p>
+  </Fragment>
+
+  <Fragment slot="controls">
+    <fieldset class="segmented">
+      <legend>Un clic sur la scène</legend>
+      <input type="radio" name="population-tool" id="population-tool-plant" value="plant" checked />
+      <label for="population-tool-plant">sème une plante</label>
+      <input type="radio" name="population-tool" id="population-tool-couple" value="couple" />
+      <label for="population-tool-couple">dépose un couple</label>
+    </fieldset>
+
+    <div class="control-group">
+      <label class="field">
+        <span class="field-label">
+          Vitesse <span class="field-value" id="population-speed-value">7 ans par seconde</span>
+        </span>
+        <input type="range" id="population-speed" min="1" max="40" step="1" value="20" />
+      </label>
+      <label class="field">
+        <span class="field-label">
+          Plafond de population <span class="field-value" id="population-cap-value">2 000</span>
+        </span>
+        <input type="range" id="population-cap" min="300" max="5000" step="100" value="2000" />
+      </label>
+    </div>
+
+    <label class="toggle">
+      <input type="checkbox" id="population-overview" />
+      <span class="toggle-track"></span>
+      Voir le monde entier
+    </label>
+
+    <div class="control-row">
+      <button class="btn" type="button" id="population-play" aria-pressed="false">Pause</button>
+      <button class="btn btn-quiet" type="button" id="population-reset">Recommencer</button>
+    </div>
+    <div class="control-row">
+      <button class="btn btn-quiet" type="button" id="population-cut">Couper toutes les plantes</button>
+    </div>
+    <p class="small muted">
+      Au-delà du plafond, une femme n'a plus qu'un enfant. Le programme d'origine le fixait à 20 000 individus.
+    </p>
+  </Fragment>
+
+  <Fragment slot="notes">
+    <section>
+      <h2>D'où ça vient</h2>
+      <p>
+        D'un programme Java de 2025, où je m'amusais à écrire des classes pour simuler une population : des
+        déplacements au hasard, des naissances, des disparitions, puis des ressources dont la population a besoin
+        pour survivre.
+      </p>
+      <p class="demo-tags">
+        <span class="tag" data-making="hand">Programme d'origine écrit à la main</span>
+        <span class="tag" data-making="ai">Version web codée avec une IA</span>
+      </p>
+    </section>
+    <section>
+      <h2>Ce que fait la démo</h2>
+      <ul>
+        <li>Un pas vaut un centième d'année. On est adulte après 17 ans.</li>
+        <li>
+          Un homme seul a, à chaque pas, une chance sur mille de former un couple avec chaque femme seule. Une
+          grossesse dure 0,8 an.
+        </li>
+        <li>
+          Chacun part avec 20 rations et va vers une plante quand il n'en a plus. Une plante se ressème à 10 ans,
+          puis tous les 50 ans ; il n'en naît plus au-delà de 100.
+        </li>
+        <li>Les points clairs sont les femmes, les points sombres les hommes, les triangles les plantes.</li>
+      </ul>
+    </section>
+    <section>
+      <h2>Ce qui a changé</h2>
+      <ul>
+        <li>
+          Dans le programme d'origine, on continuait à manger une plante disparue. Ici, une plante mangée ne nourrit
+          plus : la nourriture peut manquer.
+        </li>
+        <li>
+          Le monde a des bords, que l'écran d'origine n'avait pas. La vue suit la population, qui se regroupe autour
+          des plantes.
+        </li>
+        <li>Les courbes sont nouvelles : le programme affichait seulement les compteurs.</li>
+      </ul>
+    </section>
+  </Fragment>
+
+  <script>
+    import '../../lib/labo/population/demo';
+  </script>
+</Demo>
+
+<style is:global>
+  .chart {
+    display: grid;
+    gap: var(--space-2);
+    margin-top: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+  }
+
+  .chart-legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-5);
+  }
+
+  .chart-legend b {
+    font-family: var(--font-mono);
+    font-weight: 600;
+    color: var(--chalk);
+  }
+
+  /* La clé de chaque courbe reprend son trait : plein pour la population, pointillé pour les plantes. */
+  .chart-key {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .chart-key::before {
+    content: '';
+    width: 1.5rem;
+    height: 0;
+    border-top: 3px solid var(--tube);
+  }
+
+  .chart-key-plants::before {
+    border-top: 3px dashed var(--phosphor);
+  }
+
+  .chart-frame {
+    position: relative;
+    height: 8.5rem;
+  }
+
+  .chart-frame canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+</style>
