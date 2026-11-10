@@ -69,6 +69,21 @@ export function accelerations(bodies: readonly Body[]): Float64Array {
   return result;
 }
 
+/** Accélération que subirait un astre placé au point (x, y), sous l'effet de tous les autres. */
+export function accelerationAt(x: number, y: number, bodies: readonly Body[]): { ax: number; ay: number } {
+  let ax = 0;
+  let ay = 0;
+  for (const body of bodies) {
+    const dx = body.x - x;
+    const dy = body.y - y;
+    const d2 = dx * dx + dy * dy + SOFTENING_SQUARED;
+    const inv = (G_EFFECTIVE * body.mass) / (d2 * Math.sqrt(d2));
+    ax += dx * inv;
+    ay += dy * inv;
+  }
+  return { ax, ay };
+}
+
 /**
  * Fusionne les astres qui se touchent. Le plus lourd garde son identité ; la masse s'additionne, la quantité
  * de mouvement est conservée, le nouvel astre se place au centre de masse. Renvoie le nombre de fusions.
@@ -275,7 +290,7 @@ export function preset(name: PresetName, random: () => number = Math.random): Bo
         const angle = random() * Math.PI * 2;
         const x = Math.cos(angle) * distance;
         const y = Math.sin(angle) * distance;
-        const swirl = 0.0042 * distance;
+        const swirl = 0.0062 * distance;
         bodies.push(
           createBody(
             400 + random() * 5_000,

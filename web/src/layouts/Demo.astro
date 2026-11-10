@@ -1,0 +1,209 @@
+---
+// Page d'une démo du labo : le titre, la scène et ses commandes côte à côte, puis les explications.
+import Base from './Base.astro';
+import Picto from '../components/Picto.astro';
+import { DEMOS, demoBySlug } from '../data/demos';
+
+interface Props {
+  slug: string;
+}
+
+const { slug } = Astro.props;
+const demo = demoBySlug(slug);
+const index = DEMOS.indexOf(demo);
+const previous = DEMOS[(index - 1 + DEMOS.length) % DEMOS.length]!;
+const next = DEMOS[(index + 1) % DEMOS.length]!;
+---
+
+<Base title={demo.name} description={demo.pitch} current="labo">
+  <article class="demo container">
+    <header class="demo-head">
+      <Picto name={demo.picto} class="demo-picto" />
+      <div class="demo-title">
+        <h1 class="tube">{demo.name}</h1>
+        <p class="lede">{demo.pitch}</p>
+      </div>
+    </header>
+
+    <div class="demo-play">
+      <div class="demo-stage">
+        <slot name="stage" />
+      </div>
+      <aside class="demo-controls plate" aria-label="Commandes de la démo">
+        <slot name="controls" />
+      </aside>
+    </div>
+
+    <div class="demo-notes">
+      <slot name="notes" />
+    </div>
+
+    <nav class="demo-nav" aria-label="Autres démos">
+      <a class="btn btn-quiet" href={`/labo/${previous.slug}`}>
+        <span class="visually-hidden">Démo précédente :</span>
+        {previous.name}
+      </a>
+      <a class="btn btn-quiet" href="/labo">Tout le labo</a>
+      <a class="btn btn-quiet" href={`/labo/${next.slug}`}>
+        <span class="visually-hidden">Démo suivante :</span>
+        {next.name}
+      </a>
+    </nav>
+  </article>
+  <!-- Le script de la démo, posé par la page dans l'emplacement par défaut. -->
+  <slot />
+</Base>
+
+<style is:global>
+  .demo {
+    display: grid;
+    gap: var(--space-6);
+    padding-block: var(--space-5) var(--space-6);
+  }
+
+  .demo-head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-5);
+  }
+
+  .demo-picto {
+    flex: none;
+    width: clamp(3.4rem, 7vw, 5rem);
+    height: auto;
+  }
+
+  .demo-title {
+    display: grid;
+    gap: var(--space-2);
+    min-width: 0;
+  }
+
+  .demo-play {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 19.5rem;
+    gap: var(--space-4);
+    align-items: start;
+  }
+
+  .demo-stage {
+    min-width: 0;
+  }
+
+  /* Scène d'une simulation : elle prend la largeur, sa hauteur suit, sans dépasser l'écran. */
+  .demo-stage .stage {
+    width: 100%;
+    aspect-ratio: 16 / 10.5;
+    max-height: min(44rem, calc(100dvh - 9rem));
+    min-height: 20rem;
+  }
+
+  .demo-stage .stage canvas {
+    position: absolute;
+    inset: 0;
+    cursor: crosshair;
+  }
+
+  .demo-controls {
+    display: grid;
+    gap: var(--space-3);
+    padding: var(--space-4);
+  }
+
+  /* À la souris, les commandes se serrent ; au doigt, elles gardent leurs 44 px. */
+  @media (hover: hover) and (pointer: fine) {
+    .demo-controls input[type='range'] {
+      height: 1.75rem;
+    }
+
+    .demo-controls .toggle {
+      min-height: 2rem;
+    }
+
+    .demo-controls .btn {
+      min-height: 2.4rem;
+    }
+  }
+
+  .demo-controls h2 {
+    font-family: var(--font-body);
+    font-size: var(--text-s);
+    font-weight: 700;
+    color: var(--chalk);
+  }
+
+  .control-group {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .control-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .demo-notes {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(17rem, 1fr));
+    gap: var(--space-6);
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--line);
+  }
+
+  .demo-notes section {
+    display: grid;
+    gap: var(--space-3);
+    align-content: start;
+  }
+
+  .demo-notes h2 {
+    font-size: var(--text-l);
+    color: var(--chalk);
+  }
+
+  .demo-notes p,
+  .demo-notes li {
+    font-size: var(--text-s);
+    color: var(--chalk-soft);
+  }
+
+  .demo-notes ul {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .demo-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-2);
+  }
+
+  .demo-nav {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  @media (max-width: 62rem) {
+    .demo-play {
+      grid-template-columns: 1fr;
+    }
+
+    .demo-stage .stage {
+      aspect-ratio: 4 / 3.4;
+      max-height: 70dvh;
+    }
+  }
+
+  @media (max-width: 40rem) {
+    .demo-head {
+      gap: var(--space-3);
+    }
+
+    .demo-stage .stage {
+      aspect-ratio: 4 / 4.6;
+    }
+  }
+</style>

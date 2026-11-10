@@ -1,0 +1,122 @@
+---
+import Demo from '../../layouts/Demo.astro';
+import { PRESET_LABELS, type PresetName } from '../../lib/labo/gravity/physics';
+
+const presets = Object.entries(PRESET_LABELS) as [PresetName, string][];
+---
+
+<Demo slug="gravite">
+  <Fragment slot="stage">
+    <div class="stage" id="gravity-stage">
+      <canvas id="gravity-canvas" aria-label="Simulation de gravité : des astres en orbite. Les commandes sont à côté."
+      ></canvas>
+      <div class="stage-hud" aria-hidden="true">
+        <span>Astres <b id="gravity-count">0</b></span>
+        <span>Temps <b id="gravity-time">0</b></span>
+        <span>Fusions <b id="gravity-merges">0</b></span>
+      </div>
+      <p class="stage-hint" id="gravity-hint">
+        Cliquer pour lâcher un astre. Glisser pour le lancer, comme avec un lance-pierre.
+      </p>
+    </div>
+    <p class="visually-hidden" role="status" id="gravity-status"></p>
+  </Fragment>
+
+  <Fragment slot="controls">
+    <fieldset class="segmented">
+      <legend>Scénario</legend>
+      {
+        presets.map(([name, label], index) => (
+          <>
+            <input type="radio" name="gravity-preset" id={`gravity-preset-${name}`} value={name} checked={index === 0} />
+            <label for={`gravity-preset-${name}`}>{label}</label>
+          </>
+        ))
+      }
+    </fieldset>
+
+    <div class="control-group">
+      <label class="field">
+        <span class="field-label">
+          Masse du prochain astre <span class="field-value" id="gravity-mass-value">1 000</span>
+        </span>
+        <input type="range" id="gravity-mass" min="0" max="100" step="1" value="50" />
+      </label>
+      <label class="field">
+        <span class="field-label">
+          Vitesse du temps <span class="field-value" id="gravity-speed-value">× 0,5</span>
+        </span>
+        <input type="range" id="gravity-speed" min="0.1" max="3" step="0.1" value="0.5" />
+      </label>
+      <label class="field">
+        <span class="field-label">Zoom <span class="field-value" id="gravity-zoom-value">× 1</span></span>
+        <input type="range" id="gravity-zoom" min="0.4" max="2" step="0.1" value="1" />
+      </label>
+    </div>
+
+    <div class="control-group">
+      <label class="toggle">
+        <input type="checkbox" id="gravity-field" checked />
+        <span class="toggle-track"></span>
+        Champ de gravité
+      </label>
+      <label class="toggle">
+        <input type="checkbox" id="gravity-trails" checked />
+        <span class="toggle-track"></span>
+        Traînées
+      </label>
+      <label class="toggle">
+        <input type="checkbox" id="gravity-orbit" checked />
+        <span class="toggle-track"></span>
+        Mise en orbite au clic
+      </label>
+    </div>
+
+    <div class="control-row">
+      <button class="btn" type="button" id="gravity-play" aria-pressed="false">Pause</button>
+      <button class="btn btn-quiet" type="button" id="gravity-step" disabled>Un pas</button>
+    </div>
+    <div class="control-row">
+      <button class="btn btn-quiet" type="button" id="gravity-random">Lâcher un astre au hasard</button>
+      <button class="btn btn-quiet" type="button" id="gravity-clear">Tout effacer</button>
+    </div>
+  </Fragment>
+
+  <Fragment slot="notes">
+    <section>
+      <h2>D'où ça vient</h2>
+      <p>
+        De Gravity, mon premier programme de physique, écrit en Java en 2020. Il calculait, pixel par pixel, ce que
+        chaque astre fait peser sur l'espace, puis enregistrait une image par pas de temps sur le disque. Il fallait
+        attendre la fin du calcul pour voir le film.
+      </p>
+      <p class="demo-tags">
+        <span class="tag" data-making="hand">Programme d'origine écrit à la main</span>
+        <span class="tag" data-making="ai">Version web codée avec une IA</span>
+      </p>
+    </section>
+    <section>
+      <h2>Ce que fait la démo</h2>
+      <ul>
+        <li>Chaque astre attire tous les autres, d'autant plus fort qu'il est lourd et proche.</li>
+        <li>Deux astres qui se touchent n'en font plus qu'un, qui garde leur élan commun.</li>
+        <li>
+          Le champ dessine, comme en 2020, la somme de ce que chaque astre fait peser en un point. Les lignes
+          relient les points de même intensité.
+        </li>
+      </ul>
+    </section>
+    <section>
+      <h2>Ce qui a changé</h2>
+      <ul>
+        <li>Les constantes sont restées : G = 6,6742, une densité de 5, dix unités par pixel.</li>
+        <li>Le calcul se fait en direct, et chaque pas est découpé plus fin pour que les orbites tiennent.</li>
+        <li>Le « système de 2020 » reprend les cinq astres du programme, aux mêmes distances et aux mêmes vitesses.</li>
+      </ul>
+    </section>
+  </Fragment>
+
+  <script>
+    import '../../lib/labo/gravity/demo';
+  </script>
+</Demo>
