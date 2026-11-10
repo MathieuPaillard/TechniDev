@@ -8,15 +8,17 @@ interface Props {
   project: Project;
   /** Afficher les faits (page Projets) ou seulement le résumé (accueil). */
   detailed?: boolean;
+  /** Niveau du titre : h2 quand la liste suit directement le titre de la page, h3 sous un titre de section. */
+  heading?: 'h2' | 'h3';
 }
 
-const { project, detailed = false } = Astro.props;
+const { project, detailed = false, heading: Heading = 'h3' } = Astro.props;
 const demo = project.demo ? DEMOS.find((candidate) => candidate.slug === project.demo) : undefined;
 ---
 
 <li class="project" data-project data-making={project.making ?? 'unknown'}>
   <div class="project-main">
-    <h3 class="project-name">{project.name}</h3>
+    <Heading class="project-name">{project.name}</Heading>
     <p class="project-summary">{project.summary}</p>
     {
       detailed && (

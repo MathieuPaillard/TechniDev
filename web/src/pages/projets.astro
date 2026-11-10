@@ -33,7 +33,7 @@ const ai = PROJECTS.filter((project) => project.making === 'ai').length;
     <p class="visually-hidden" role="status" id="projects-status"></p>
 
     <ul class="projects" id="projects-list">
-      {PROJECTS.map((project) => <ProjectRow project={project} detailed />)}
+      {PROJECTS.map((project) => <ProjectRow project={project} detailed heading="h2" />)}
     </ul>
   </div>
 

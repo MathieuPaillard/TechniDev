@@ -75,14 +75,12 @@ const massFormat = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 3 });
                 data-row={element.row}
                 data-column={element.column}
                 tabindex={element.number === 1 ? 0 : -1}
-                aria-label={`${element.name}, ${element.symbol}, numéro ${element.number}, ${massFormat.format(element.mass)} grammes par mole`}
-                title={`${element.name} · ${massFormat.format(element.mass)} g/mol`}
+                title={`${element.name}, ${massFormat.format(element.mass)} g/mol`}
               >
-                <span class="pcell-number" aria-hidden="true">
-                  {element.number}
-                </span>
-                <span class="pcell-symbol" aria-hidden="true">
-                  {element.symbol}
+                <span class="pcell-number">{element.number}</span>
+                <span class="pcell-symbol">{element.symbol}</span>
+                <span class="visually-hidden">
+                  , {element.name}, {massFormat.format(element.mass)} grammes par mole
                 </span>
                 <span class="pcell-count" aria-hidden="true" />
               </button>
@@ -380,7 +378,7 @@ const massFormat = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 3 });
   }
 
   .pcell[class*='pgas-'] {
-    color: color-mix(in srgb, var(--t) 75%, var(--wall));
+    color: var(--t);
   }
 
   /* Élément présent dans la formule : son tube s'allume. */

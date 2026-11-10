@@ -322,7 +322,8 @@
   font-family: var(--font-sign);
   font-size: 1.9rem;
   line-height: 1;
-  color: color-mix(in srgb, var(--t) 62%, var(--wall));
+  /* Tube éteint : la teinte du gaz, assez claire pour rester lisible (contraste de 3 au moins sur le mur). */
+  color: color-mix(in srgb, var(--t) 82%, var(--wall));
   transition:
     color 0.2s ease,
     text-shadow 0.2s ease;
