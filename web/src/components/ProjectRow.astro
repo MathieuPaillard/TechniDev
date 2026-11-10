@@ -1,0 +1,163 @@
+---
+// Un projet sur une ligne : ce que c'est, son état réel, la façon dont il a été écrit, où le voir.
+// Le voyant d'état est allumé pour ce qui tourne, il bat pour un prototype.
+import { MAKING_LABELS, STATUS_LABELS, type Project } from '../data/projects';
+import { DEMOS } from '../data/demos';
+
+interface Props {
+  project: Project;
+  /** Afficher les faits (page Projets) ou seulement le résumé (accueil). */
+  detailed?: boolean;
+}
+
+const { project, detailed = false } = Astro.props;
+const demo = project.demo ? DEMOS.find((candidate) => candidate.slug === project.demo) : undefined;
+---
+
+<li class="project" data-project data-making={project.making ?? 'unknown'}>
+  <div class="project-main">
+    <h3 class="project-name">{project.name}</h3>
+    <p class="project-summary">{project.summary}</p>
+    {
+      detailed && (
+        <ul class="project-facts">
+          {project.facts.map((fact) => (
+            <li>{fact}</li>
+          ))}
+        </ul>
+      )
+    }
+    <p class="project-links">
+      {
+        project.site && (
+          <a href={project.site} rel="noopener">
+            Ouvrir le site<span class="visually-hidden"> {project.name}</span>
+          </a>
+        )
+      }
+      {
+        demo && (
+          <a href={`/labo/${demo.slug}`}>
+            Jouer la démo<span class="visually-hidden"> {demo.name}</span>
+          </a>
+        )
+      }
+      {
+        project.code && (
+          <a href={project.code} rel="noopener">
+            Voir le code<span class="visually-hidden"> de {project.name}</span>
+          </a>
+        )
+      }
+    </p>
+  </div>
+  <div class="project-meta">
+    <span class="lamp" data-state={project.status}>{STATUS_LABELS[project.status]}</span>
+    {project.making && <span class="tag" data-making={project.making}>{MAKING_LABELS[project.making]}</span>}
+    <span class="project-stack">{project.stack.join(', ')}</span>
+    <span class="project-years">{project.years}</span>
+  </div>
+</li>
+
+<style is:global>
+  .projects {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .project {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(13rem, 17rem);
+    gap: var(--space-3) var(--space-6);
+    max-width: none;
+    padding-block: var(--space-5);
+    border-top: 1px solid var(--line);
+  }
+
+  .project[hidden] {
+    display: none;
+  }
+
+  .project-main {
+    display: grid;
+    gap: var(--space-2);
+    align-content: start;
+    min-width: 0;
+  }
+
+  .project-name {
+    font-size: var(--text-xl);
+    color: var(--chalk);
+    transition:
+      color 0.2s ease,
+      text-shadow 0.2s ease;
+  }
+
+  /* Le nom s'allume quand on approche la ligne : la lumière dit que l'on peut y aller. */
+  .project:hover .project-name,
+  .project:focus-within .project-name {
+    color: var(--core);
+    text-shadow:
+      0 0 0.1em color-mix(in srgb, var(--tube) calc(var(--glow) * 100%), transparent),
+      0 0 0.3em color-mix(in srgb, var(--tube) calc(var(--glow) * 100%), transparent),
+      0 0 0.8em color-mix(in srgb, var(--halo) calc(var(--glow) * 100%), transparent);
+  }
+
+  .project-summary {
+    color: var(--chalk);
+  }
+
+  .project-facts {
+    display: grid;
+    gap: var(--space-1);
+    font-size: var(--text-s);
+    color: var(--chalk-soft);
+  }
+
+  .project-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-1) var(--space-5);
+    max-width: none;
+    font-size: var(--text-s);
+    font-weight: 650;
+  }
+
+  .project-links a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2rem;
+  }
+
+  .project-links:empty {
+    display: none;
+  }
+
+  .project-meta {
+    display: grid;
+    gap: var(--space-2);
+    justify-items: start;
+    align-content: start;
+    font-size: var(--text-s);
+    color: var(--chalk-soft);
+  }
+
+  .project-meta .tag {
+    white-space: normal;
+  }
+
+  @media (max-width: 46rem) {
+    .project {
+      grid-template-columns: 1fr;
+    }
+
+    .project-meta {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--space-2) var(--space-4);
+    }
+  }
+</style>

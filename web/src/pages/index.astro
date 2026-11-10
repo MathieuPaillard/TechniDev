@@ -3,7 +3,12 @@ import Base from '../layouts/Base.astro';
 import NeonSign from '../components/NeonSign.astro';
 import GasPicker from '../components/GasPicker.astro';
 import Picto from '../components/Picto.astro';
+import ProjectRow from '../components/ProjectRow.astro';
 import { DEMOS } from '../data/demos';
+import { JOURNEY, METHOD } from '../data/journey';
+import { MAKING_LABELS, PROJECTS } from '../data/projects';
+
+const featured = PROJECTS.filter((project) => project.featured);
 ---
 
 <Base title="TechniDev">
@@ -33,9 +38,94 @@ import { DEMOS } from '../data/demos';
     </nav>
   </section>
 
+  <section class="strip" aria-labelledby="strip-title">
+    <canvas class="strip-canvas" data-gravity-preview aria-label="La démo Gravité en petit : des astres en orbite autour d'un soleil"></canvas>
+    <div class="container strip-text">
+      <h2 class="tube" id="strip-title">Lâcher un astre</h2>
+      <p>
+        C'est la démo Gravité, en petit. Un clic n'importe où met un astre en orbite.{' '}
+        <a href="/labo/gravite">Ouvrir la démo complète</a>
+      </p>
+    </div>
+  </section>
+
+  <section class="section container" aria-labelledby="projets-title">
+    <div class="section-head">
+      <h2 class="tube" id="projets-title">Les projets</h2>
+      <p class="lede">
+        Chacun dit où il en est, et comment son code a été écrit :
+        <span class="tag" data-making="hand">{MAKING_LABELS.hand}</span> ou
+        <span class="tag" data-making="ai">{MAKING_LABELS.ai}</span>.
+      </p>
+    </div>
+    <ul class="projects">
+      {featured.map((project) => <ProjectRow project={project} />)}
+    </ul>
+    <p class="section-more">
+      <a class="btn btn-quiet" href="/projets">Voir les {PROJECTS.length} projets</a>
+    </p>
+  </section>
+
+  <section class="section container" id="parcours" aria-labelledby="parcours-title">
+    <div class="section-head">
+      <h2 class="tube" id="parcours-title">Le parcours</h2>
+      <p class="lede">Six ans, du premier programme Java à des applications en ligne.</p>
+    </div>
+    <ol class="journey">
+      {
+        JOURNEY.map((step) => (
+          <li class="journey-step">
+            <span class="journey-when">{step.when}</span>
+            <div class="journey-body">
+              <h3>{step.title}</h3>
+              <p>{step.text}</p>
+            </div>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+
+  <section class="section container" id="fabrication" aria-labelledby="fabrication-title">
+    <div class="section-head">
+      <h2 class="tube" id="fabrication-title">Comment c'est fait</h2>
+      <p class="lede">
+        Deux façons de faire cohabitent ici. Une partie du code, je l'ai tapée moi-même : le Java, les applis Android,
+        Notes. L'autre, je l'ai conçue et pilotée, et une IA l'a écrite : c'est le cas de ce site.
+      </p>
+    </div>
+    <div class="method-layout">
+      <ol class="method">
+        {
+          METHOD.map((step, index) => (
+            <li class="method-step">
+              <span class="method-number" aria-hidden="true">
+                {index + 1}
+              </span>
+              <div>
+                <h3>{step.title}</h3>
+                <p>{step.text}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+      <div class="method-note plate">
+        <p>
+          Les démos du labo reprennent mes programmes d'origine, avec leurs constantes et leurs règles. Leur version
+          web a été écrite par Claude Code. Quand elle s'écarte du programme, la page de la démo le dit.
+        </p>
+        <p>
+          Les outils que j'ai faits pour mon travail sont présentés sans nom et avec des données inventées.
+        </p>
+      </div>
+    </div>
+  </section>
+
   <script>
     import '../lib/ui/sign';
     import '../lib/ui/wall';
+    import '../lib/labo/gravity/preview';
   </script>
 </Base>
 
@@ -150,6 +240,258 @@ import { DEMOS } from '../data/demos';
 
   .wall-sign-6 {
     --strike-delay: 1.85s;
+  }
+
+  /* La bande Gravité : pleine largeur, le texte posé dessus en bas à gauche. */
+  .strip {
+    position: relative;
+    height: clamp(19rem, 52vh, 30rem);
+    border-block: 1px solid var(--line);
+    background: color-mix(in srgb, var(--wall) 70%, black);
+    overflow: hidden;
+  }
+
+  .strip-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    cursor: crosshair;
+    touch-action: manipulation;
+  }
+
+  .strip-text {
+    position: relative;
+    display: grid;
+    align-content: end;
+    gap: var(--space-2);
+    height: 100%;
+    padding-block: var(--space-5);
+    pointer-events: none;
+  }
+
+  .strip-text h2 {
+    font-size: var(--text-xl);
+  }
+
+  .strip-text p {
+    max-width: 34ch;
+    font-size: var(--text-s);
+    color: var(--chalk-soft);
+    text-shadow: 0 0 8px var(--wall);
+  }
+
+  .strip-text a {
+    pointer-events: auto;
+    font-weight: 650;
+    color: var(--chalk);
+  }
+
+  .section-more {
+    max-width: none;
+    padding-top: var(--space-5);
+    border-top: 1px solid var(--line);
+  }
+
+  /* Le parcours : un tube vertical que la lecture allume, une étape après l'autre. */
+  .journey {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .journey-step {
+    position: relative;
+    display: grid;
+    grid-template-columns: 9.5rem minmax(0, 1fr);
+    gap: var(--space-5);
+    max-width: none;
+    padding: 0 0 var(--space-7) var(--space-6);
+  }
+
+  .journey-step:last-child {
+    padding-bottom: 0;
+  }
+
+  /* Le verre du tube, puis la lumière qui le remplit. */
+  .journey-step::before,
+  .journey-step::after {
+    content: '';
+    position: absolute;
+    left: 0.4rem;
+    top: 0.9rem;
+    bottom: -0.9rem;
+    width: 4px;
+    border-radius: 2px;
+  }
+
+  .journey-step::before {
+    background: var(--glass);
+  }
+
+  .journey-step::after {
+    background: var(--core);
+    box-shadow:
+      0 0 5px color-mix(in srgb, var(--tube) calc(var(--glow) * 100%), transparent),
+      0 0 16px color-mix(in srgb, var(--halo) calc(var(--glow) * 100%), transparent);
+    transform-origin: top;
+  }
+
+  .journey-step:last-child::before,
+  .journey-step:last-child::after {
+    display: none;
+  }
+
+  .journey-when {
+    position: relative;
+    font-family: var(--font-sign);
+    font-size: var(--text-xl);
+    line-height: 1.15;
+    color: var(--core);
+    text-shadow:
+      0 0 0.1em color-mix(in srgb, var(--tube) calc(var(--glow) * 100%), transparent),
+      0 0 0.3em color-mix(in srgb, var(--tube) calc(var(--glow) * 100%), transparent),
+      0 0 0.8em color-mix(in srgb, var(--halo) calc(var(--glow) * 100%), transparent);
+  }
+
+  /* La jonction du tube : une perle en face de chaque date. */
+  .journey-when::before {
+    content: '';
+    position: absolute;
+    left: calc(-1 * var(--space-6) + 0.4rem - 4px);
+    top: 0.45rem;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--core);
+    box-shadow:
+      0 0 5px color-mix(in srgb, var(--tube) calc(var(--glow) * 100%), transparent),
+      0 0 14px color-mix(in srgb, var(--halo) calc(var(--glow) * 100%), transparent);
+  }
+
+  .journey-body {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .journey-body h3 {
+    font-family: var(--font-body);
+    font-size: var(--text-l);
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  .journey-body p {
+    color: var(--chalk-soft);
+  }
+
+  /* Là où le navigateur sait lier une animation au défilement, le tube se remplit à mesure qu'on descend. */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .journey-step::after {
+        animation: journey-fill linear both;
+        animation-timeline: view();
+        animation-range: entry 25% cover 62%;
+      }
+
+      .journey-when,
+      .journey-when::before {
+        animation: journey-light linear both;
+        animation-timeline: view();
+        animation-range: entry 10% entry 90%;
+      }
+    }
+  }
+
+  @keyframes journey-fill {
+    from {
+      transform: scaleY(0);
+    }
+    to {
+      transform: scaleY(1);
+    }
+  }
+
+  @keyframes journey-light {
+    from {
+      opacity: 0.28;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  /* La méthode : une suite d'étapes, numérotées parce qu'elles se suivent. */
+  .method-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.75fr);
+    gap: var(--space-6);
+    align-items: start;
+  }
+
+  .method {
+    display: grid;
+    gap: var(--space-5);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .method-step {
+    display: grid;
+    grid-template-columns: 2.6rem minmax(0, 1fr);
+    gap: var(--space-4);
+    max-width: none;
+  }
+
+  .method-number {
+    display: grid;
+    place-items: center;
+    width: 2.6rem;
+    height: 2.6rem;
+    border: 2px solid var(--tube);
+    border-radius: 50%;
+    font-family: var(--font-sign);
+    font-size: 1.3rem;
+    line-height: 1;
+    color: var(--core);
+    box-shadow:
+      0 0 5px color-mix(in srgb, var(--tube) calc(var(--glow) * 100%), transparent),
+      0 0 14px color-mix(in srgb, var(--halo) calc(var(--glow) * 70%), transparent),
+      inset 0 0 8px color-mix(in srgb, var(--tube) calc(var(--glow) * 35%), transparent);
+  }
+
+  .method-step h3 {
+    font-family: var(--font-body);
+    font-size: var(--text-l);
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  .method-step p {
+    margin-top: var(--space-1);
+    color: var(--chalk-soft);
+  }
+
+  .method-note {
+    display: grid;
+    gap: var(--space-3);
+    padding: var(--space-5);
+    font-size: var(--text-s);
+    color: var(--chalk-soft);
+  }
+
+  @media (max-width: 60rem) {
+    .method-layout {
+      grid-template-columns: 1fr;
+    }
+
+    .journey-step {
+      grid-template-columns: 1fr;
+      gap: var(--space-2);
+      padding-bottom: var(--space-6);
+    }
   }
 
   @media (max-width: 60rem) {

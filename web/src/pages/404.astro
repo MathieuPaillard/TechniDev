@@ -1,0 +1,53 @@
+---
+import Base from '../layouts/Base.astro';
+---
+
+<Base title="Page introuvable" description="Cette page n'existe pas.">
+  <div class="container lost">
+    <p class="lost-code" aria-hidden="true">
+      <span class="tube">4</span><span class="lost-off">0</span><span class="tube">4</span>
+    </p>
+    <h1>Ce tube-là est grillé</h1>
+    <p class="lede">La page demandée n'existe pas, ou n'existe plus.</p>
+    <p class="lost-actions">
+      <a class="btn" href="/">Revenir à l'accueil</a>
+      <a class="btn btn-quiet" href="/labo">Aller au labo</a>
+    </p>
+  </div>
+</Base>
+
+<style>
+  .lost {
+    display: grid;
+    gap: var(--space-4);
+    justify-items: start;
+    padding-block: var(--space-8);
+  }
+
+  .lost-code {
+    max-width: none;
+    font-family: var(--font-sign);
+    font-size: clamp(6rem, 26vw, 15rem);
+    line-height: 0.9;
+    font-variation-settings:
+      'XROT' -10,
+      'YROT' 16;
+  }
+
+  /* Le zéro n'est qu'un tube éteint. */
+  .lost-off {
+    color: color-mix(in srgb, var(--frost) 46%, var(--wall));
+  }
+
+  .lost h1 {
+    font-size: var(--text-2xl);
+  }
+
+  .lost-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+    max-width: none;
+    margin-top: var(--space-3);
+  }
+</style>

@@ -1,0 +1,53 @@
+---
+import Base from '../layouts/Base.astro';
+import ProjectRow from '../components/ProjectRow.astro';
+import { MAKING_LABELS, PROJECTS } from '../data/projects';
+
+const hand = PROJECTS.filter((project) => project.making === 'hand').length;
+const ai = PROJECTS.filter((project) => project.making === 'ai').length;
+---
+
+<Base
+  title="Les projets"
+  description="Tous les projets de Mathieu Paillard, avec leur état réel et la façon dont leur code a été écrit."
+  current="projets"
+>
+  <div class="container projects-page">
+    <header class="section-head">
+      <h1 class="tube">Les projets</h1>
+      <p class="lede">
+        {PROJECTS.length} projets, du prototype à l'application en ligne. Chacun dit où il en est, et qui a tapé le
+        code.
+      </p>
+    </header>
+
+    <fieldset class="segmented projects-filter">
+      <legend>Montrer</legend>
+      <input type="radio" name="making" id="making-all" value="all" checked />
+      <label for="making-all">Tout ({PROJECTS.length})</label>
+      <input type="radio" name="making" id="making-hand" value="hand" />
+      <label for="making-hand">{MAKING_LABELS.hand} ({hand})</label>
+      <input type="radio" name="making" id="making-ai" value="ai" />
+      <label for="making-ai">{MAKING_LABELS.ai} ({ai})</label>
+    </fieldset>
+    <p class="visually-hidden" role="status" id="projects-status"></p>
+
+    <ul class="projects" id="projects-list">
+      {PROJECTS.map((project) => <ProjectRow project={project} detailed />)}
+    </ul>
+  </div>
+
+  <script>
+    import '../lib/ui/projects-filter';
+  </script>
+</Base>
+
+<style>
+  .projects-page {
+    padding-block: var(--space-6) var(--space-7);
+  }
+
+  .projects-filter {
+    margin-bottom: var(--space-5);
+  }
+</style>

@@ -1,0 +1,151 @@
+---
+import Base from '../../layouts/Base.astro';
+import Picto from '../../components/Picto.astro';
+import { DEMOS } from '../../data/demos';
+---
+
+<Base
+  title="Le labo"
+  description="Six démos jouables : gravité, ondes, population, masse molaire, PGCD, comptes entre amis."
+  current="labo"
+>
+  <div class="container lab">
+    <header class="section-head">
+      <h1 class="tube">Le labo</h1>
+      <p class="lede">
+        Six démos à essayer. Chacune reprend un programme que j'ai écrit, porté dans le navigateur : rien à
+        installer, rien n'est envoyé.
+      </p>
+    </header>
+
+    <ul class="lab-grid" data-wall>
+      {
+        DEMOS.map((demo) => (
+          <li>
+            <a class="lab-card" href={`/labo/${demo.slug}`} data-wall-sign>
+              <Picto name={demo.picto} class="lab-picto" />
+              <span class="lab-text">
+                <span class="lab-name">{demo.name}</span>
+                <span class="lab-pitch">{demo.pitch}</span>
+                <span class="lab-origin">
+                  D'après {demo.origin}, {demo.year}
+                </span>
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+
+  <script>
+    import '../../lib/ui/wall';
+  </script>
+</Base>
+
+<style>
+  .lab {
+    padding-block: var(--space-6) var(--space-7);
+  }
+
+  .lab-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr));
+    gap: var(--space-4);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .lab-grid li {
+    max-width: none;
+  }
+
+  .lab-card {
+    --lit: 0.5;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: var(--space-5);
+    height: 100%;
+    padding: var(--space-5);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: color-mix(in srgb, var(--plate) 60%, transparent);
+    text-decoration: none;
+    transition:
+      border-color 0.2s ease,
+      box-shadow 0.2s ease,
+      background-color 0.2s ease;
+  }
+
+  .lab-card :global(.lab-picto) {
+    width: 5.2rem;
+    height: auto;
+  }
+
+  .lab-text {
+    display: grid;
+    gap: var(--space-1);
+    min-width: 0;
+  }
+
+  .lab-name {
+    font-family: var(--font-sign);
+    font-size: var(--text-xl);
+    line-height: 1.15;
+    color: var(--chalk);
+    transition:
+      color 0.2s ease,
+      text-shadow 0.2s ease;
+  }
+
+  .lab-pitch {
+    color: var(--chalk);
+  }
+
+  .lab-origin {
+    font-size: var(--text-s);
+    color: var(--chalk-soft);
+  }
+
+  /* La carte que l'on approche s'allume : son pictogramme à plein éclat, son cadre en tube. */
+  .lab-card:hover,
+  .lab-card:focus-visible {
+    --lit: 1;
+    border-color: var(--tube);
+    background: color-mix(in srgb, var(--tube) 7%, var(--plate));
+    text-shadow: none;
+    box-shadow:
+      0 0 5px color-mix(in srgb, var(--tube) calc(var(--glow) * 100%), transparent),
+      0 0 20px color-mix(in srgb, var(--halo) calc(var(--glow) * 70%), transparent),
+      inset 0 0 14px color-mix(in srgb, var(--tube) calc(var(--glow) * 22%), transparent);
+  }
+
+  .lab-card:hover .lab-name,
+  .lab-card:focus-visible .lab-name {
+    color: var(--core);
+    text-shadow:
+      0 0 0.1em color-mix(in srgb, var(--tube) calc(var(--glow) * 100%), transparent),
+      0 0 0.3em color-mix(in srgb, var(--tube) calc(var(--glow) * 100%), transparent),
+      0 0 0.8em color-mix(in srgb, var(--halo) calc(var(--glow) * 100%), transparent);
+  }
+
+  @media (max-width: 30rem) {
+    .lab-card {
+      grid-template-columns: 1fr;
+      justify-items: start;
+      gap: var(--space-3);
+    }
+
+    .lab-card :global(.lab-picto) {
+      width: 4.2rem;
+    }
+  }
+
+  @media (hover: none) {
+    .lab-card {
+      --lit: 0.9;
+    }
+  }
+</style>
