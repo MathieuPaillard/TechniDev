@@ -1,0 +1,316 @@
+---
+import Demo from '../../layouts/Demo.astro';
+
+const ordinals = ['Premier nombre', 'Deuxième nombre', 'Troisième nombre', 'Quatrième nombre', 'Cinquième nombre'];
+const defaults = ['1071', '462', '', '', ''];
+const examples: [string, string][] = [
+  ['1 071 et 462', '1071,462'],
+  ['Un écran : 1 920 et 1 080', '1920,1080'],
+  ['Deux voisins de Fibonacci : 144 et 89', '144,89'],
+  ['Trois nombres : 84, 126 et 210', '84,126,210'],
+  ['Un milliard et 7', '1000000000,7'],
+];
+---
+
+<Demo slug="pgcd">
+  <Fragment slot="stage">
+    <div class="gcd">
+      <div class="gcd-inputs">
+        {
+          ordinals.map((label, index) => (
+            <div class="field gcd-field" data-gcd-field={index} hidden={index > 1}>
+              <label class="field-label" for={`gcd-n${index + 1}`}>
+                {label}
+              </label>
+              <div class="gcd-stepper">
+                <button type="button" class="btn btn-quiet gcd-step" data-gcd-step="-1" aria-label={`${label} : retirer 1`}>
+                  −
+                </button>
+                <input
+                  class="input gcd-input"
+                  id={`gcd-n${index + 1}`}
+                  type="text"
+                  inputmode="numeric"
+                  autocomplete="off"
+                  maxlength="17"
+                  value={defaults[index]}
+                  aria-describedby={`gcd-error${index + 1}`}
+                />
+                <button type="button" class="btn btn-quiet gcd-step" data-gcd-step="1" aria-label={`${label} : ajouter 1`}>
+                  +
+                </button>
+              </div>
+              <p class="field-error" id={`gcd-error${index + 1}`} role="alert" />
+            </div>
+          ))
+        }
+      </div>
+
+      <div class="gcd-result plate">
+        <div class="gcd-answer">
+          <span class="gcd-answer-label">PGCD</span>
+          <span class="nixie" id="gcd-nixie" aria-hidden="true"></span>
+        </div>
+        <dl class="gcd-facts">
+          <div>
+            <dt>PPCM</dt>
+            <dd id="gcd-lcm"></dd>
+          </div>
+          <div>
+            <dt>Fraction réduite</dt>
+            <dd id="gcd-fraction"></dd>
+          </div>
+        </dl>
+        <p class="visually-hidden" role="status" id="gcd-status"></p>
+      </div>
+
+      <figure class="gcd-figure">
+        <div class="stage gcd-stage" id="gcd-stage">
+          <canvas id="gcd-canvas" aria-label="Le rectangle formé par les deux premiers nombres, découpé en carrés"></canvas>
+        </div>
+        <figcaption class="small muted" id="gcd-caption"></figcaption>
+      </figure>
+
+      <div class="gcd-details">
+        <section>
+          <h2>Les divisions d'Euclide</h2>
+          <ol class="gcd-steps" id="gcd-steps"></ol>
+          <p class="small muted" id="gcd-counts"></p>
+        </section>
+        <section>
+          <h2>Les facteurs premiers</h2>
+          <ul class="gcd-factors" id="gcd-factors"></ul>
+          <p class="small muted" id="gcd-common"></p>
+        </section>
+      </div>
+    </div>
+  </Fragment>
+
+  <Fragment slot="controls">
+    <div class="control-row">
+      <button class="btn btn-quiet" type="button" id="gcd-add">Ajouter un nombre</button>
+      <button class="btn btn-quiet" type="button" id="gcd-remove" disabled>Retirer le dernier</button>
+    </div>
+    <div class="control-row">
+      <button class="btn btn-quiet" type="button" id="gcd-replay">Rejouer le découpage</button>
+    </div>
+    <div class="control-group">
+      <h2>Essayer avec</h2>
+      <div class="control-row">
+        {
+          examples.map(([name, values]) => (
+            <button type="button" class="btn btn-quiet btn-small" data-gcd-example={values}>
+              {name}
+            </button>
+          ))
+        }
+      </div>
+    </div>
+  </Fragment>
+
+  <Fragment slot="notes">
+    <section>
+      <h2>D'où ça vient</h2>
+      <p>
+        De PGCD, ma deuxième appli Android, publiée début 2023. Elle donne le plus grand diviseur commun de deux à
+        cinq nombres, puis, depuis sa version 2, leurs facteurs premiers et la fraction réduite. Chaque nombre a ses
+        boutons plus et moins : ils sont restés.
+      </p>
+      <p class="demo-tags">
+        <span class="tag" data-making="hand">Appli d'origine écrite à la main</span>
+        <span class="tag" data-making="ai">Version web codée avec une IA</span>
+      </p>
+    </section>
+    <section>
+      <h2>Ce que fait la démo</h2>
+      <ul>
+        <li>
+          Elle découpe le rectangle des deux premiers nombres en carrés, chaque fois les plus grands possibles. Les
+          derniers carrés, les plus petits, ont le PGCD pour côté.
+        </li>
+        <li>Chaque rangée de carrés est une division : le quotient compte les carrés, le reste donne la suite.</li>
+        <li>Les facteurs premiers communs à tous les nombres sont allumés. Leur produit redonne le PGCD.</li>
+      </ul>
+    </section>
+    <section>
+      <h2>Ce qui a changé</h2>
+      <ul>
+        <li>
+          L'appli calculait par soustractions successives : on retire le plus petit nombre du plus grand jusqu'à
+          l'égalité. La démo compte ces soustractions à côté des divisions, qui vont au même résultat en bien moins
+          de coups.
+        </li>
+        <li>Le dessin en carrés et le PPCM sont nouveaux.</li>
+        <li>Les nombres vont jusqu'à mille milliards.</li>
+      </ul>
+    </section>
+  </Fragment>
+
+  <script>
+    import '../../lib/labo/arithmetic/demo';
+  </script>
+</Demo>
+
+<style is:global>
+  .gcd {
+    display: grid;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+
+  .gcd-inputs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+    gap: var(--space-3) var(--space-4);
+  }
+
+  .gcd-field[hidden] {
+    display: none;
+  }
+
+  .gcd-stepper {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 0.35rem;
+  }
+
+  .gcd-step {
+    min-width: var(--target);
+    padding-inline: 0;
+    font-size: 1.25rem;
+    line-height: 1;
+  }
+
+  .gcd-input {
+    font-family: var(--font-mono);
+    font-size: 1.15rem;
+    text-align: right;
+  }
+
+  .gcd-result {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--space-4) var(--space-7);
+    padding: var(--space-4) var(--space-5);
+  }
+
+  .gcd-answer {
+    display: flex;
+    align-items: center;
+    gap: var(--space-4);
+    min-width: 0;
+  }
+
+  .gcd-answer-label {
+    font-family: var(--font-sign);
+    font-size: var(--text-xl);
+    color: var(--chalk-soft);
+  }
+
+  .gcd-answer .nixie {
+    font-size: clamp(1.8rem, 5.5vw, 3rem);
+    flex-wrap: wrap;
+    row-gap: 0.2em;
+  }
+
+  .gcd-facts {
+    display: grid;
+    gap: var(--space-2);
+    margin: 0;
+    min-width: 0;
+  }
+
+  .gcd-facts div {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 var(--space-3);
+  }
+
+  .gcd-facts dt {
+    font-size: var(--text-s);
+    font-weight: 600;
+    color: var(--chalk-soft);
+  }
+
+  .gcd-facts dd {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: var(--text-m);
+    color: var(--chalk);
+    overflow-wrap: anywhere;
+  }
+
+  .gcd-figure {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  /* Le découpage ne se touche pas : pas de curseur de visée, et le doigt peut faire défiler la page. */
+  .demo-stage .stage.gcd-stage {
+    aspect-ratio: 16 / 7.5;
+    min-height: 13rem;
+    touch-action: auto;
+  }
+
+  .demo-stage .stage.gcd-stage canvas {
+    cursor: default;
+  }
+
+  .gcd-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+    gap: var(--space-5);
+  }
+
+  .gcd-details section {
+    display: grid;
+    gap: var(--space-3);
+    align-content: start;
+    min-width: 0;
+  }
+
+  .gcd-details h2 {
+    font-size: var(--text-l);
+  }
+
+  .gcd-steps,
+  .gcd-factors {
+    display: grid;
+    gap: 0.3rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    font-family: var(--font-mono);
+    font-size: var(--text-s);
+  }
+
+  .gcd-steps li,
+  .gcd-factors li {
+    max-width: none;
+    overflow-wrap: anywhere;
+  }
+
+  .gcd-steps .is-last {
+    color: var(--phosphor);
+  }
+
+  /* Un facteur commun à tous les nombres est un tube allumé ; les autres restent en verre. */
+  .gcd-factor {
+    color: var(--chalk-soft);
+  }
+
+  .gcd-factor.is-common {
+    color: var(--core);
+    text-shadow:
+      0 0 0.2em color-mix(in srgb, var(--tube) calc(var(--glow) * 100%), transparent),
+      0 0 0.7em color-mix(in srgb, var(--halo) calc(var(--glow) * 100%), transparent);
+  }
+
+  :root[data-tubes='off'] .gcd-factor.is-common {
+    color: var(--chalk);
+    font-weight: 700;
+    text-decoration: underline;
+  }
+</style>
