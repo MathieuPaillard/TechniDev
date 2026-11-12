@@ -88,7 +88,7 @@ test('le labo mène à chacune des six démos', async ({ page }) => {
 test('aucun tiret cadratin dans les pages', async ({ request }) => {
   for (const { path } of PAGES) {
     const html = await (await request.get(path)).text();
-    expect(html.includes('—'), `tiret cadratin dans ${path}`).toBe(false);
+    expect(html.includes('\u2014'), `tiret cadratin dans ${path}`).toBe(false);
   }
 });
 
