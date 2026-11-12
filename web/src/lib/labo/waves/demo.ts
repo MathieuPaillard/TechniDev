@@ -56,6 +56,7 @@ const massOutput = byId('waves-mass-value', HTMLElement);
 const gravityInput = byId('waves-gravity', HTMLInputElement);
 const playButton = byId('waves-play', HTMLButtonElement);
 const clearButton = byId('waves-clear', HTMLButtonElement);
+const randomButton = byId('waves-random', HTMLButtonElement);
 
 const integer = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 });
 const oneDecimal = new Intl.NumberFormat('fr-FR', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
@@ -481,6 +482,21 @@ playButton.addEventListener('click', () => {
 clearButton.addEventListener('click', () => {
   world = createWorld();
   announce(status, 'Scène vidée.');
+  loop.redraw();
+  updateHud(true);
+});
+
+// Pour qui n'a pas de pointeur : une source immobile, posée au hasard dans la partie visible du monde.
+randomButton.addEventListener('click', () => {
+  if (world.sources.length >= MAX_SOURCES) {
+    announce(status, `La scène est pleine : ${MAX_SOURCES} sources au plus.`);
+    return;
+  }
+  const span = SPANS[presetName];
+  const x = (Math.random() * 2 - 1) * span.x * 0.8;
+  const y = (Math.random() * 2 - 1) * span.y * 0.8;
+  world.sources.push(createSource(chosenMass(), x, y, 0, 0, true));
+  announce(status, `Source posée au hasard. ${world.sources.length} sources.`);
   loop.redraw();
   updateHud(true);
 });

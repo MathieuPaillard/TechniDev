@@ -175,9 +175,22 @@ function simulate(dtSeconds: number): void {
 
 // Dessin
 
+/** Taille des cellules du champ : elle grossit quand le calcul coûte trop cher sur cet appareil, et revient ensuite. */
+let fieldCell = FIELD_CELL;
+/** Temps moyen du calcul du champ, en millisecondes (moyenne glissante). */
+let fieldCost = 0;
+
 function drawField(stage: Stage): void {
-  // Cellules plus grosses quand les astres sont nombreux : le calcul reste sous quelques millisecondes.
-  const cell = bodies.length > 110 ? 8 : bodies.length > 45 ? 6 : FIELD_CELL;
+  // Au-delà de 7 ms par image, les cellules grossissent ; sous 2,5 ms, elles s'affinent de nouveau.
+  if (fieldCost > 7 && fieldCell < 10) {
+    fieldCell += 2;
+    fieldCost = 3.5;
+  } else if (fieldCost < 2.5 && fieldCost > 0 && fieldCell > FIELD_CELL) {
+    fieldCell -= 2;
+    fieldCost = 4;
+  }
+  const cell = fieldCell;
+  const started = performance.now();
   const cols = Math.ceil(stage.width / cell);
   const rows = Math.ceil(stage.height / cell);
   if (!fieldCanvas || fieldCanvas.width !== cols || fieldCanvas.height !== rows) {
@@ -260,6 +273,8 @@ function drawField(stage: Stage): void {
       }
     }
     fieldCtx.putImageData(fieldImage, 0, 0);
+    const spent = performance.now() - started;
+    fieldCost = fieldCost === 0 ? spent : fieldCost * 0.9 + spent * 0.1;
   }
   stage.ctx.imageSmoothingEnabled = true;
   stage.ctx.imageSmoothingQuality = 'high';

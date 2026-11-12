@@ -60,6 +60,9 @@ test.describe('Ondes', () => {
     await expect(page.locator('#waves-view-field')).toBeChecked();
     await page.locator('#waves-clear').click();
     await expect(page.locator('#waves-count')).toHaveText('0');
+    // Sans pointeur : le bouton pose une source au hasard.
+    await page.locator('#waves-random').click();
+    await expect(page.locator('#waves-count')).toHaveText('1');
   });
 });
 
@@ -82,6 +85,9 @@ test.describe('Population', () => {
 
     await page.locator('#population-cut').click();
     await expect(page.locator('#population-plants')).toHaveText('0');
+    // Sans pointeur : le bouton applique l'outil choisi (ici, le couple) à un endroit tiré au hasard.
+    await page.locator('#population-random').click();
+    await expect(page.locator('#population-count')).toHaveText(String(people + 4));
   });
 });
 

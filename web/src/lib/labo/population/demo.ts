@@ -53,6 +53,7 @@ const overviewInput = byId('population-overview', HTMLInputElement);
 const playButton = byId('population-play', HTMLButtonElement);
 const resetButton = byId('population-reset', HTMLButtonElement);
 const cutButton = byId('population-cut', HTMLButtonElement);
+const randomButton = byId('population-random', HTMLButtonElement);
 
 const integer = new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 0 });
 
@@ -342,14 +343,10 @@ const loop = startLoop({
 
 hooks.redraw = () => loop.redraw();
 
-// Semer ou déposer au pointeur
+// Semer ou déposer, au pointeur ou au hasard
 
-canvas.addEventListener('pointerdown', (event) => {
-  if (event.button !== 0) return;
-  const p = stage.pointer(event);
-  const { zoom, left, top } = view(stage);
-  const x = Math.min(world.width, Math.max(0, (p.x - left) / zoom));
-  const y = Math.min(world.height, Math.max(0, (p.y - top) / zoom));
+/** Applique l'outil choisi (plante ou couple) à un endroit du monde. */
+function act(x: number, y: number): void {
   if (checkedValue('population-tool') === 'couple') {
     dropCouple(world, random, x, y);
     announce(status, `Couple déposé. ${summary()}`);
@@ -360,6 +357,24 @@ canvas.addEventListener('pointerdown', (event) => {
   hint.hidden = true;
   loop.redraw();
   updateHud(true);
+}
+
+canvas.addEventListener('pointerdown', (event) => {
+  if (event.button !== 0) return;
+  const p = stage.pointer(event);
+  const { zoom, left, top } = view(stage);
+  act(
+    Math.min(world.width, Math.max(0, (p.x - left) / zoom)),
+    Math.min(world.height, Math.max(0, (p.y - top) / zoom)),
+  );
+});
+
+// Pour qui n'a pas de pointeur : le même geste, à un endroit tiré au hasard dans la partie visible du monde.
+randomButton.addEventListener('click', () => {
+  act(
+    Math.min(world.width, Math.max(0, frame.x + Math.random() * frame.width)),
+    Math.min(world.height, Math.max(0, frame.y + Math.random() * frame.height)),
+  );
 });
 
 // Commandes
