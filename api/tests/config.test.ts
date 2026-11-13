@@ -14,8 +14,8 @@ describe('configuration', () => {
   });
 
   it('exige DATABASE_URL', () => {
-    expect(() => parseConfig({})).toThrow(/DATABASE_URL/);
-    expect(() => parseConfig({ DATABASE_URL: '' })).toThrow(/DATABASE_URL/);
+    expect(() => parseConfig({})).toThrow(/Obligatoire : chaîne de connexion PostgreSQL\.\n.*DATABASE_URL/);
+    expect(() => parseConfig({ DATABASE_URL: '' })).toThrow(/Obligatoire : chaîne de connexion PostgreSQL\.\n.*DATABASE_URL/);
   });
 
   it('refuse un port qui n\'est pas un entier entre 1 et 65535', () => {

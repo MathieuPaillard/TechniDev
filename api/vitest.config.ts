@@ -5,6 +5,7 @@ export default defineConfig({
   test: {
     // Les tests partagent une même base : un fichier à la fois.
     fileParallelism: false,
+    globalSetup: ['tests/global-setup.ts'],
     env: {
       NODE_ENV: 'test',
       DATABASE_URL: TEST_DATABASE_URL,

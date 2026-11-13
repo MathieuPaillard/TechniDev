@@ -8,6 +8,8 @@ const QUARTER_HOUR_MS = 15 * 60 * 1000;
 export const THRESHOLDS = {
   /** Toute l'API, par adresse et par quart d'heure. */
   global: 300,
+  /** Échecs de connexion, par adresse et par quart d'heure. */
+  login: 5,
 } as const;
 
 export type LimitName = keyof typeof THRESHOLDS;
@@ -48,5 +50,7 @@ export function createLimits({ active, thresholds = {} }: LimitsOptions): Limits
   return {
     // Sauf /api/health, vu ici sans le préfixe de montage : il est appelé en boucle pendant le réveil de Render.
     global: limit('global', 'Trop de requêtes. Réessayez dans quelques minutes.', { skip: (req) => req.path === '/health' }),
+    // Seuls les échecs comptent : une connexion réussie rend son essai. Un essai interrompu avant la réponse reste compté.
+    login: limit('login', "Trop d'essais de connexion. Réessayez dans un quart d'heure.", { skipSuccessfulRequests: true }),
   };
 }

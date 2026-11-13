@@ -5,6 +5,7 @@ import { errorHandler, MAX_BODY_KB, notFoundHandler } from './errors.js';
 import { jsonOnly } from './middleware/json-only.js';
 import { requestLogger } from './middleware/request-logger.js';
 import { securityHeaders } from './middleware/security-headers.js';
+import { createAdminAuthRouter } from './routes/admin-auth.js';
 import healthRouter from './routes/health.js';
 import { createLimits, type Limits } from './security/limits.js';
 import { originGuard } from './security/origin.js';
@@ -40,6 +41,7 @@ export function createApp(options: AppOptions = {}) {
 
   const api = express.Router();
   api.use(healthRouter);
+  api.use('/admin', createAdminAuthRouter({ secureCookie: security.isProduction, loginLimit: limits.login }));
   app.use('/api', api);
 
   app.use(notFoundHandler);

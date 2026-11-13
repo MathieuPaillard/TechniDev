@@ -10,7 +10,7 @@ const schema = z
       .transform(Number)
       .pipe(z.number().int().min(1, 'Doit être un entier entre 1 et 65535.').max(65535, 'Doit être un entier entre 1 et 65535.'))
       .default(3000),
-    DATABASE_URL: z.string().min(1, 'Obligatoire : chaîne de connexion PostgreSQL.'),
+    DATABASE_URL: z.string({ error: 'Obligatoire : chaîne de connexion PostgreSQL.' }).min(1, 'Obligatoire : chaîne de connexion PostgreSQL.'),
     // Contrôle d'origine et proxy signé : obligatoires en production.
     FRONT_URL: z.url().optional(),
     NETLIFY_SIGNATURE: z.string().min(1).optional(),

@@ -1,6 +1,10 @@
 import { createHmac } from 'node:crypto';
+import bcrypt from 'bcrypt';
 import { createApp, type AppOptions } from '../src/app.js';
+import { pool } from '../src/db.js';
 import { createLimits } from '../src/security/limits.js';
+import { generateToken, hashToken, SESSION_COOKIE } from '../src/security/sessions.js';
+import { TEST_DATABASE_URL } from './test-db.js';
 
 /** Site et secret fictifs des tests du mode production. */
 export const FRONT = 'https://technidev.example';
@@ -34,4 +38,42 @@ export function netlifySignature(
   const signingInput = `${encode(header)}.${encode(payload)}`;
   const signature = createHmac('sha256', options.secret ?? SECRET).update(signingInput).digest('base64url');
   return `${signingInput}.${signature}`;
+}
+
+/** Vide toutes les tables (à appeler dans un beforeEach). */
+export async function resetDb(): Promise<void> {
+  // Un TRUNCATE sur une vraie base serait irréversible.
+  if (process.env.DATABASE_URL !== TEST_DATABASE_URL) {
+    throw new Error('resetDb refusé : DATABASE_URL ne pointe pas vers la base de test.');
+  }
+  await pool.query('TRUNCATE admins, sessions RESTART IDENTITY CASCADE');
+}
+
+export const ADMIN = { login: 'mathieu', password: 'un mot de passe assez long' } as const;
+
+/** Insère le compte administrateur directement en base (coût bcrypt réduit : les tests n'ont pas à attendre). */
+export async function createAdmin(overrides: { login?: string; password?: string } = {}) {
+  const login = overrides.login ?? ADMIN.login;
+  const password = overrides.password ?? ADMIN.password;
+  const result = await pool.query<{ id: number }>('INSERT INTO admins (login, password_hash) VALUES ($1, $2) RETURNING id', [
+    login,
+    await bcrypt.hash(password, 4),
+  ]);
+  return { id: result.rows[0]!.id, login, password };
+}
+
+/** Ouvre une session directement en base et renvoie le jeton et l'en-tête Cookie correspondant. */
+export async function adminSession(adminId: number, expiresInSeconds = 3600): Promise<{ token: string; cookie: string }> {
+  const token = generateToken();
+  await pool.query(
+    "INSERT INTO sessions (token_hash, admin_id, expires_at) VALUES ($1, $2, statement_timestamp() + $3::integer * interval '1 second')",
+    [hashToken(token), adminId, expiresInSeconds],
+  );
+  return { token, cookie: `${SESSION_COOKIE}=${token}` };
+}
+
+/** Un administrateur et sa session : l'en-tête Cookie à joindre aux requêtes. */
+export async function loggedInAdmin(): Promise<string> {
+  const admin = await createAdmin();
+  return (await adminSession(admin.id)).cookie;
 }

@@ -285,7 +285,7 @@ Aucune étape n'est faite en parallèle d'une autre, sauf mention contraire.
 | Étape | Contenu | Fichiers | Vérification | État |
 |---|---|---|---|---|
 | 1 | Squelette de l'API : configuration, application, santé, format d'erreur, proxy signé, contrôle d'origine | `api/src/app.ts`, `config/`, `errors.ts`, `security/`, `routes/health.ts` | types, tests de la santé, de la signature et de l'origine | fait |
-| 2 | Migration 1 (`admins`, `sessions`), script de création du compte, connexion, déconnexion, `me` | `api/migrations/`, `scripts/`, `routes/admin-auth.ts`, `security/sessions.ts` | tests : connexion bonne et mauvaise, limite d'essais, expiration | à faire |
+| 2 | Migration 1 (`admins`, `sessions`), script de création du compte, connexion, déconnexion, `me` | `api/migrations/`, `scripts/`, `routes/admin-auth.ts`, `security/sessions.ts` | tests : connexion bonne et mauvaise, limite d'essais, expiration | fait |
 | 3 | Migration 2 (`messages`), lecture et envoi publics, limites, pot de miel, plafonds | `routes/messages.ts`, `security/limits.ts` | tests de chaque règle du §B3 | à faire |
 | 4 | Modération : liste, publication, suppression, réponse | `routes/admin-messages.ts` | tests des droits et des états | à faire |
 | 5 | Front : livre d'or et blocs « Laisser un mot » | `web/src/pages/livre-d-or.astro`, `web/src/lib/guestbook/` | tests de bout en bout des états du §B8 | à faire |
