@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    // Vérification des types seulement (src, tests, configuration) ; la construction passe par tsconfig.build.json.
+    "noEmit": true,
+    "module": "nodenext",
+    "target": "esnext",
+    "types": ["node"],
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noEmitOnError": true,
+    "verbatimModuleSyntax": true,
+    "isolatedModules": true,
+    "noUncheckedSideEffectImports": true,
+    "moduleDetection": "force",
+    "skipLibCheck": true
+  },
+  "include": ["src", "tests", "vitest.config.ts"]
+}
