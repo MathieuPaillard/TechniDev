@@ -46,7 +46,7 @@ export async function resetDb(): Promise<void> {
   if (process.env.DATABASE_URL !== TEST_DATABASE_URL) {
     throw new Error('resetDb refusé : DATABASE_URL ne pointe pas vers la base de test.');
   }
-  await pool.query('TRUNCATE admins, sessions RESTART IDENTITY CASCADE');
+  await pool.query('TRUNCATE admins, sessions, messages RESTART IDENTITY CASCADE');
 }
 
 export const ADMIN = { login: 'mathieu', password: 'un mot de passe assez long' } as const;
@@ -76,4 +76,40 @@ export async function adminSession(adminId: number, expiresInSeconds = 3600): Pr
 export async function loggedInAdmin(): Promise<string> {
   const admin = await createAdmin();
   return (await adminSession(admin.id)).cookie;
+}
+
+export interface InsertedMessage {
+  author?: string;
+  body?: string;
+  page?: string | null;
+  status?: 'pending' | 'published';
+  reply?: string | null;
+  /** Date d'écriture forcée (ISO 8601). */
+  createdAt?: string;
+}
+
+/** Insère un message directement en base (sans passer par l'API) et renvoie son identifiant. */
+export async function insertMessage(options: InsertedMessage = {}): Promise<number> {
+  const status = options.status ?? 'published';
+  const reply = options.reply ?? null;
+  const result = await pool.query<{ id: number }>(
+    `INSERT INTO messages (author, body, page, status, published_at, reply, replied_at, created_at)
+     VALUES ($1, $2, $3, $4,
+             CASE WHEN $4 = 'published' THEN statement_timestamp() END,
+             $5, CASE WHEN $5::text IS NOT NULL THEN statement_timestamp() END,
+             COALESCE($6::timestamptz, statement_timestamp()))
+     RETURNING id`,
+    [options.author ?? 'Ada', options.body ?? 'Belle démo.', options.page ?? null, status, reply, options.createdAt ?? null],
+  );
+  return result.rows[0]!.id;
+}
+
+/** Insère `count` messages d'un coup, dans l'état donné : pour atteindre un plafond sans des centaines de requêtes. */
+export async function insertManyMessages(count: number, status: 'pending' | 'published'): Promise<void> {
+  await pool.query(
+    `INSERT INTO messages (author, body, status, published_at)
+     SELECT 'Série', 'Message ' || n, $2, CASE WHEN $2 = 'published' THEN statement_timestamp() END
+     FROM generate_series(1, $1::integer) AS n`,
+    [count, status],
+  );
 }

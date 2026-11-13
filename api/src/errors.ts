@@ -69,7 +69,13 @@ export function zodDetails(error: z.ZodError): ValidationDetail[] {
 
 // Contrainte PostgreSQL -> erreur de la SPEC. La validation de l'API passe avant : ces traductions sont un filet,
 // pour qu'une valeur refusée par la base donne un 400 lisible plutôt qu'un 500.
-const CONSTRAINT_ERRORS: Record<string, () => AppError> = {};
+const CONSTRAINT_ERRORS: Record<string, () => AppError> = {
+  messages_author_length: () => validationError('Le pseudo doit faire entre 2 et 24 caractères.', 'author'),
+  messages_body_length: () => validationError('Le texte doit faire entre 1 et 600 caractères.', 'body'),
+  messages_page_length: () => validationError('Rattachement inconnu.', 'page'),
+  messages_reply_length: () => validationError('La réponse doit faire entre 1 et 600 caractères.', 'body'),
+  messages_reply_only_published: () => new AppError('INVALID_STATE', 'Ce message attend encore : publiez-le avant de répondre.'),
+};
 
 /**
  * Traduit une erreur PostgreSQL attendue (23505 unicité, 23503 clé étrangère, 23514 CHECK) d'après le nom de

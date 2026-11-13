@@ -3,6 +3,8 @@ import { ipKeyGenerator, rateLimit, type Options, type RateLimitRequestHandler }
 import type { ApiErrorBody } from '../errors.js';
 
 const QUARTER_HOUR_MS = 15 * 60 * 1000;
+const HOUR_MS = 60 * 60 * 1000;
+const DAY_MS = 24 * HOUR_MS;
 
 /** Seuils de la SPEC (§B3). Les tests en injectent de plus petits. */
 export const THRESHOLDS = {
@@ -10,6 +12,9 @@ export const THRESHOLDS = {
   global: 300,
   /** Échecs de connexion, par adresse et par quart d'heure. */
   login: 5,
+  /** Messages envoyés au livre d'or, par adresse : par heure, puis par jour. */
+  messagesHour: 3,
+  messagesDay: 10,
 } as const;
 
 export type LimitName = keyof typeof THRESHOLDS;
@@ -52,5 +57,16 @@ export function createLimits({ active, thresholds = {} }: LimitsOptions): Limits
     global: limit('global', 'Trop de requêtes. Réessayez dans quelques minutes.', { skip: (req) => req.path === '/health' }),
     // Seuls les échecs comptent : une connexion réussie rend son essai. Un essai interrompu avant la réponse reste compté.
     login: limit('login', "Trop d'essais de connexion. Réessayez dans un quart d'heure.", { skipSuccessfulRequests: true }),
+    // Posées après la validation du message (routes/messages.ts) : tout envoi valide compte, enregistré ou non. Aucune
+    // requête n'est décomptée après coup : un client qui coupe la connexion avant la réponse ne récupère pas son essai.
+    // Deux limites sur la même route : leurs en-têtes RateLimit se recouvriraient, on ne les envoie pas.
+    messagesHour: limit('messagesHour', 'Vous avez déjà envoyé plusieurs messages. Réessayez dans une heure.', {
+      windowMs: HOUR_MS,
+      standardHeaders: false,
+    }),
+    messagesDay: limit('messagesDay', "Vous avez atteint la limite de messages pour aujourd'hui. Réessayez demain.", {
+      windowMs: DAY_MS,
+      standardHeaders: false,
+    }),
   };
 }
