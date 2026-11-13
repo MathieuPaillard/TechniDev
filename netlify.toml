@@ -1,4 +1,4 @@
-# Le site est dans web/ (Astro, statique). L'API viendra dans api/ (voir docs/SPEC.md).
+# Le site est dans web/ (Astro, statique). L'API est dans api/ et se déploie à part, sur Render (api/README.md).
 [build]
   base = "web"
   command = "npm run build"
@@ -6,6 +6,20 @@
 
 [build.environment]
   NODE_VERSION = "24"
+
+# Le livre d'or appelle l'API sous le même domaine que le site (SPEC §B4) : pas de CORS, cookie de session
+# « first-party ». À activer à la mise en ligne de l'API (api/README.md) : retirer les « # » du bloc et mettre
+# l'adresse du service Render. Tant que le bloc est en commentaire, le site fonctionne, sans le livre d'or.
+#
+# [[redirects]]
+#   from = "/api/*"
+#   to = "https://ADRESSE-DU-SERVICE.onrender.com/api/:splat"
+#   status = 200
+#   force = true
+#   # Proxy signé (SPEC §B7) : Netlify ajoute à chaque requête transmise l'en-tête X-Nf-Sign, signé avec la
+#   # valeur de la variable d'environnement nommée ici. Le secret ne va jamais dans git : le définir dans
+#   # Netlify (API_SIGNATURE_TOKEN), avec la même valeur que NETLIFY_SIGNATURE sur Render.
+#   signed = "API_SIGNATURE_TOKEN"
 
 [[headers]]
   for = "/*"

@@ -10,6 +10,18 @@ export const shorthands = undefined;
  * @returns {Promise<void> | void}
  */
 export const up = (pgm) => {
+  // Les longueurs sont comptées par char_length : des caractères dans une base en UTF8, des octets ailleurs.
+  // La migration refuse donc toute autre base, plutôt que de poser des contraintes qui ne veulent plus rien dire.
+  pgm.sql(`
+    DO $$
+    BEGIN
+      IF current_setting('server_encoding') <> 'UTF8' THEN
+        RAISE EXCEPTION 'La base doit être encodée en UTF8 (elle est en %).', current_setting('server_encoding');
+      END IF;
+    END
+    $$;
+  `);
+
   pgm.createTable('messages', {
     id: 'id',
     // Rattachement à une démo ou à un projet ; nul pour un message général.

@@ -167,7 +167,9 @@ Index unique `admins_single_row_idx` sur la constante `true` : la table ne peut 
 | `reply` | `text` | nul sans réponse, 1 à 600 caractères sinon |
 | `replied_at` | `timestamptz` | nul sans réponse, renseigné avec elle |
 
-Chaque règle de la colonne de droite est une contrainte `CHECK`. Index : `messages (status, id)`, qui sert les deux listes (l'ordre des messages est celui de leur identifiant).
+Chaque règle de la colonne de droite est une contrainte `CHECK` nommée, et une réponse n'est acceptée que sous un message publié. Index : `messages (status, id)`, qui sert les deux listes (l'ordre des messages est celui de leur identifiant).
+
+Les longueurs sont comptées par `char_length`, qui ne compte des caractères que dans une base en **UTF8** : la migration 2 refuse toute autre base.
 
 ## B6. API
 
@@ -287,7 +289,7 @@ Aucune étape n'est faite en parallèle d'une autre, sauf mention contraire.
 | 1 | Squelette de l'API : configuration, application, santé, format d'erreur, proxy signé, contrôle d'origine | `api/src/app.ts`, `config/`, `errors.ts`, `security/`, `routes/health.ts` | types, tests de la santé, de la signature et de l'origine | fait |
 | 2 | Migration 1 (`admins`, `sessions`), script de création du compte, connexion, déconnexion, `me` | `api/migrations/`, `scripts/`, `routes/admin-auth.ts`, `security/sessions.ts` | tests : connexion bonne et mauvaise, limite d'essais, expiration | fait |
 | 3 | Migration 2 (`messages`), lecture et envoi publics, limites, pot de miel, plafonds | `routes/messages.ts`, `security/limits.ts` | tests de chaque règle du §B3 | fait |
-| 4 | Modération : liste, publication, suppression, réponse | `routes/admin-messages.ts` | tests des droits et des états | à faire |
+| 4 | Modération : liste, publication, suppression, réponse | `routes/admin-messages.ts` | tests des droits et des états | fait |
 | 5 | Front : livre d'or et blocs « Laisser un mot » | `web/src/pages/livre-d-or.astro`, `web/src/lib/guestbook/` | tests de bout en bout des états du §B8 | à faire |
 | 6 | Front : administration | `web/src/pages/admin.astro`, `web/src/lib/admin/` | tests de bout en bout : se connecter, publier, répondre, supprimer | à faire |
 | 7 | Mise en ligne par Mathieu, puis vérifications en ligne (requête directe sur Render refusée, signature acceptée) | `netlify.toml`, réglages de Render | liste du §B7, sur le site réel | à faire, par Mathieu |
