@@ -127,6 +127,7 @@ Navigateur ──HTTPS──▶ Netlify : site statique (web/)
 - **Veille de Render** : après environ 15 minutes sans requête, le serveur s'endort ; le réveil prend 30 à 60 secondes. Seules les pages qui ont besoin de l'API l'appellent (livre d'or, blocs « Laisser un mot », `/admin`), et seulement quand leur bloc arrive à l'écran. Elles affichent « Réveil du serveur… » en interrogeant `GET /api/health` toutes les 3 secondes, 90 secondes au plus.
 - `GET /api/health` ne touche pas la base : le contrôle de santé de Render ne doit pas tenir Neon éveillé.
 - En développement, le serveur Astro redirige `/api` vers `http://localhost:3000`.
+- **Sans API, pas de livre d'or.** Le site décide à sa construction s'il montre le livre d'or : oui si `netlify.toml` redirige `/api/*` (ou en développement), non sinon. Tant que l'API n'est pas en ligne, il n'y a ni lien, ni bloc sous les démos, ni appel à l'API ; la page `/livre-d-or` dit seulement que le livre n'est pas encore ouvert. La règle est dans `web/guestbook-flag.mjs`.
 
 ## B5. Modèle de données
 
@@ -290,7 +291,7 @@ Aucune étape n'est faite en parallèle d'une autre, sauf mention contraire.
 | 2 | Migration 1 (`admins`, `sessions`), script de création du compte, connexion, déconnexion, `me` | `api/migrations/`, `scripts/`, `routes/admin-auth.ts`, `security/sessions.ts` | tests : connexion bonne et mauvaise, limite d'essais, expiration | fait |
 | 3 | Migration 2 (`messages`), lecture et envoi publics, limites, pot de miel, plafonds | `routes/messages.ts`, `security/limits.ts` | tests de chaque règle du §B3 | fait |
 | 4 | Modération : liste, publication, suppression, réponse | `routes/admin-messages.ts` | tests des droits et des états | fait |
-| 5 | Front : livre d'or et blocs « Laisser un mot » | `web/src/pages/livre-d-or.astro`, `web/src/lib/guestbook/` | tests de bout en bout des états du §B8 | à faire |
+| 5 | Front : livre d'or et blocs « Laisser un mot » | `web/src/pages/livre-d-or.astro`, `web/src/lib/guestbook/` | tests de bout en bout des états du §B8 | fait |
 | 6 | Front : administration | `web/src/pages/admin.astro`, `web/src/lib/admin/` | tests de bout en bout : se connecter, publier, répondre, supprimer | à faire |
 | 7 | Mise en ligne par Mathieu, puis vérifications en ligne (requête directe sur Render refusée, signature acceptée) | `netlify.toml`, réglages de Render | liste du §B7, sur le site réel | à faire, par Mathieu |
 | 8 | Propositions du §B15, une fois confirmées | migration 3, routes, front | à écrire avec les règles confirmées | en attente de confirmation |
@@ -327,6 +328,7 @@ Dépendances de `api/`, validées avec le reste : `express`, `pg`, `zod`, `node-
 10. **Le compte se crée au démarrage de Render**, à partir de deux variables retirées ensuite : l'offre gratuite de Render n'a pas de console, et la chaîne de connexion de production n'a pas à passer par un poste de travail.
 11. **Le cookie de session ne part que vers `/api/admin`** : il ne voyage pas avec les requêtes du livre d'or.
 12. **Des caractères sont refusés** (contrôle, sens d'écriture) : ils ne servent qu'à maquiller un texte, et la relecture ne les voit pas.
+13. **Le site ne montre le livre d'or que si l'API est branchée.** Un lien vers un livre d'or qui attend 90 secondes un serveur absent abîmerait la vitrine. La décision se lit dans `netlify.toml`, qui est aussi ce qui branche l'API : pas de second réglage à tenir à jour.
 
 ## B14. Risques restants
 

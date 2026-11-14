@@ -1,0 +1,224 @@
+/* Livre d'or : les messages, la ligne d'état, le formulaire et le bloc « Laisser un mot » des démos.
+   Feuille à part, et non un style de composant : les messages sont créés par script (lib/guestbook/render.ts). */
+
+/* Ligne d'état : un voyant et une phrase. Le voyant bat pendant une attente, pâlit pour un message calme. */
+.guestbook-status {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  margin: 0;
+  max-width: var(--measure);
+  color: var(--chalk-soft);
+}
+
+.guestbook-status[hidden] {
+  display: none;
+}
+
+.guestbook-status::before {
+  content: '';
+  flex: none;
+  width: 0.62rem;
+  height: 0.62rem;
+  border-radius: 50%;
+  border: 2px solid var(--frost);
+  transform: translateY(0.02rem);
+}
+
+.guestbook-status[data-state='waiting'] {
+  color: var(--chalk);
+}
+
+.guestbook-status[data-state='waiting']::before {
+  border-color: transparent;
+  background: var(--tube);
+  box-shadow:
+    0 0 4px color-mix(in srgb, var(--tube) calc(var(--glow) * 100%), transparent),
+    0 0 12px color-mix(in srgb, var(--halo) calc(var(--glow) * 100%), transparent);
+  animation: lamp-pulse 1.6s ease-in-out infinite;
+}
+
+.guestbook-status[data-state='problem'] {
+  color: var(--phosphor);
+}
+
+.guestbook-status[data-state='problem']::before {
+  border-color: var(--phosphor);
+}
+
+/* Message parti : le voyant tient allumé. */
+.guestbook-status[data-state='done'] {
+  color: var(--chalk);
+}
+
+.guestbook-status[data-state='done']::before {
+  border-color: transparent;
+  background: var(--core);
+  box-shadow:
+    0 0 4px color-mix(in srgb, var(--tube) calc(var(--glow) * 100%), transparent),
+    0 0 12px color-mix(in srgb, var(--halo) calc(var(--glow) * 100%), transparent);
+}
+
+:root[data-tubes='off'] .guestbook-status::before {
+  animation: none;
+}
+
+/* Les messages */
+
+.messages {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.messages:empty {
+  display: none;
+}
+
+.message {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: start;
+  gap: var(--space-3);
+  /* La carte prend sa colonne ; c'est le texte qui garde une largeur de lecture. */
+  max-width: none;
+  padding: var(--space-4) var(--space-5);
+}
+
+/* Sous une démo : les trois messages côte à côte quand la place le permet. */
+.guestbook-block .messages {
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 19rem), 1fr));
+}
+
+/* Message atteint par « Afficher la suite » : le focus s'y pose sans cadre, la lecture reprend là. */
+.message:focus {
+  outline: none;
+}
+
+.message-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.3rem 0.9rem;
+}
+
+.message-author {
+  font-weight: 700;
+  color: var(--chalk);
+  overflow-wrap: anywhere;
+}
+
+.message-date {
+  font-size: var(--text-s);
+  color: var(--chalk-soft);
+  white-space: nowrap;
+}
+
+.message-subject {
+  text-decoration: none;
+}
+
+.message-subject:hover {
+  border-color: var(--tube);
+  color: var(--chalk);
+  text-shadow: none;
+}
+
+/* Texte brut : les retours à la ligne du visiteur sont gardés, un mot sans fin ne déborde pas. */
+.message-body {
+  margin: 0;
+  max-width: var(--measure);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* La réponse : un filet de tube à gauche, comme un fil qui part du message. */
+.message-reply {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-2);
+  padding-left: var(--space-4);
+  border-left: 2px solid var(--tube);
+}
+
+:root[data-tubes='off'] .message-reply {
+  border-left-color: var(--frost);
+}
+
+.message-reply-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.3rem 0.9rem;
+  margin: 0;
+}
+
+.message-reply-author {
+  font-family: var(--font-sign);
+  font-size: var(--text-m);
+}
+
+@media (max-width: 30rem) {
+  .message {
+    padding: var(--space-4);
+  }
+}
+
+/* Boutons sous une liste : la suite, un nouvel essai. */
+.guestbook-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.guestbook-actions:not(:has(> :not([hidden]))) {
+  display: none;
+}
+
+/* Le formulaire */
+
+.guestbook-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-4);
+  padding: var(--space-5);
+}
+
+.guestbook-form textarea.input {
+  min-height: 8.5rem;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.guestbook-form .field-error[hidden] {
+  display: none;
+}
+
+.guestbook-form .field-value[data-over] {
+  color: var(--phosphor);
+}
+
+.guestbook-submit {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3) var(--space-4);
+}
+
+/* Champ piège pour les robots : hors de l'écran, hors du parcours au clavier, ignoré des lecteurs d'écran. */
+.guestbook-trap {
+  position: absolute;
+  left: -200vw;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+@media (max-width: 30rem) {
+  .guestbook-form {
+    padding: var(--space-4);
+  }
+}

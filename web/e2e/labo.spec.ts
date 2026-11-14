@@ -69,7 +69,8 @@ test.describe('Ondes', () => {
 test.describe('Population', () => {
   test('les années passent, un clic sème une plante ou dépose un couple', async ({ page }) => {
     await page.goto('/labo/population');
-    await expect(page.locator('#population-count')).toHaveText('8');
+    // La simulation démarre aussitôt avec 8 personnes : le temps de lire le compteur, il peut y avoir eu des naissances.
+    await expect.poll(async () => Number(plain(await page.locator('#population-count').textContent()).replace(/ /g, ''))).toBeGreaterThanOrEqual(8);
     await expect.poll(async () => Number(await page.locator('#population-year').textContent())).toBeGreaterThan(1);
 
     await page.locator('#population-play').click();

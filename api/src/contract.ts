@@ -1,4 +1,27 @@
-// Types échangés avec le site (SPEC §B6.3). Toute modification passe d'abord par la SPEC.
+// Types échangés avec le site (SPEC §B6). Toute modification passe d'abord par la SPEC.
+// Ce fichier n'importe rien : le site le lit tel quel (web/src/lib/api/), sans dépendre du reste de l'API.
+
+/** Codes d'erreur du §B6.1. */
+export type ErrorCode =
+  | 'VALIDATION'
+  | 'UNAUTHENTICATED'
+  | 'INVALID_CREDENTIALS'
+  | 'ORIGIN_REJECTED'
+  | 'NOT_FOUND'
+  | 'INVALID_STATE'
+  | 'GUESTBOOK_FULL'
+  | 'TOO_MANY_REQUESTS'
+  | 'INTERNAL_ERROR';
+
+export interface ValidationDetail {
+  /** Le champ en cause ; vide quand l'erreur porte sur le corps entier. */
+  path: string;
+  message: string;
+}
+
+export interface ApiErrorBody {
+  error: { code: ErrorCode; message: string; details?: unknown };
+}
 
 export interface Message {
   id: number;

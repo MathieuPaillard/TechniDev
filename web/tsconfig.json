@@ -1,7 +1,7 @@
 {
   "extends": "astro/tsconfigs/strict",
   "include": [".astro/types.d.ts", "**/*"],
-  "exclude": ["dist", "test-results", "playwright-report"],
+  "exclude": ["dist", ".e2e", "test-results", "playwright-report"],
   "compilerOptions": {
     "noUncheckedIndexedAccess": true
   }

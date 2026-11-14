@@ -1,8 +1,10 @@
 ---
 // Page d'une démo du labo : le titre, la scène et ses commandes côte à côte, puis les explications.
 import Base from './Base.astro';
+import GuestbookBlock from '../components/GuestbookBlock.astro';
 import Picto from '../components/Picto.astro';
 import { DEMOS, demoBySlug } from '../data/demos';
+import { GUESTBOOK_ENABLED } from '../lib/guestbook/enabled';
 
 interface Props {
   slug: string;
@@ -37,6 +39,8 @@ const next = DEMOS[(index + 1) % DEMOS.length]!;
     <div class="demo-notes">
       <slot name="notes" />
     </div>
+
+    {GUESTBOOK_ENABLED && <GuestbookBlock page={`demo:${demo.slug}`} />}
 
     <nav class="demo-nav" aria-label="Autres démos">
       <a class="btn btn-quiet" href={`/labo/${previous.slug}`}>

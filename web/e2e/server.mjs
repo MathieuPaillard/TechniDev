@@ -1,6 +1,7 @@
-// Serveur du site construit pour les tests de bout en bout : sert dist/ comme Netlify, avec les en-têtes de
+// Serveur du site construit pour les tests de bout en bout : sert un dossier comme Netlify, avec les en-têtes de
 // netlify.toml (dont la politique de sécurité), les adresses sans « .html » et la page 404.
-//   node e2e/server.mjs --port 4410
+// Avec --api-port, il transmet aussi /api/* à l'API locale, comme la redirection de Netlify.
+//   node e2e/server.mjs --port 4410 [--dist .e2e/on] [--api-port 4430]
 import { createReadStream, statSync } from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
@@ -8,15 +9,18 @@ import { fileURLToPath } from 'node:url';
 import { parseArgs } from 'node:util';
 import { netlifyPageHeaders } from './netlify-headers.mjs';
 
-const { values } = parseArgs({ options: { port: { type: 'string' } } });
+const { values } = parseArgs({
+  options: { port: { type: 'string' }, dist: { type: 'string' }, 'api-port': { type: 'string' } },
+});
 const port = Number(values.port);
-if (!Number.isInteger(port)) {
-  console.error('Usage : node e2e/server.mjs --port N');
+const apiPort = values['api-port'] === undefined ? null : Number(values['api-port']);
+if (!Number.isInteger(port) || (apiPort !== null && !Number.isInteger(apiPort))) {
+  console.error('Usage : node e2e/server.mjs --port N [--dist dossier] [--api-port N]');
   process.exit(2);
 }
 
 const webRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
-const dist = path.join(webRoot, 'dist');
+const dist = path.resolve(webRoot, values.dist ?? 'dist');
 const headers = netlifyPageHeaders(path.resolve(webRoot, '..'));
 
 const types = {
@@ -56,8 +60,47 @@ function resolveStatic(pathname) {
   return null;
 }
 
+// Relais vers l'API. Une requête à la fois : la base de test (PGlite) n'a qu'une session, deux transactions
+// qui se croiseraient s'y mélangeraient.
+let queue = Promise.resolve();
+
+function relay(req, res) {
+  queue = queue.then(() => forward(req, res)).catch(() => {});
+}
+
+function forward(req, res) {
+  return new Promise((resolve) => {
+    const headers = { ...req.headers, host: `127.0.0.1:${apiPort}` };
+    // Chaque test se présente sous sa propre adresse (e2e/fixtures.ts) : l'API compte ses limites par adresse,
+    // et lit celle que son proxy lui transmet.
+    const client = headers['x-e2e-client'];
+    delete headers['x-e2e-client'];
+    delete headers['x-forwarded-for'];
+    if (typeof client === 'string') headers['x-forwarded-for'] = client;
+
+    const upstream = http.request({ host: '127.0.0.1', port: apiPort, method: req.method, path: req.url, headers }, (response) => {
+      res.writeHead(response.statusCode ?? 502, response.headers);
+      response.pipe(res);
+      response.once('end', resolve);
+      response.once('error', resolve);
+    });
+    upstream.once('error', () => {
+      if (!res.headersSent) res.writeHead(502, { 'Content-Type': 'text/plain; charset=utf-8' });
+      res.end('API injoignable');
+      resolve();
+    });
+    // Le navigateur est parti : la file ne doit pas rester bloquée.
+    res.once('close', resolve);
+    req.pipe(upstream);
+  });
+}
+
 const server = http.createServer((req, res) => {
   const url = new URL(req.url ?? '/', 'http://localhost');
+  if (apiPort !== null && url.pathname.startsWith('/api/')) {
+    relay(req, res);
+    return;
+  }
   if (req.method !== 'GET' && req.method !== 'HEAD') {
     res.writeHead(405, headers).end();
     return;

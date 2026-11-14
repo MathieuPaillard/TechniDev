@@ -2,6 +2,7 @@
 // Pied de page : la marque telle qu'elle a été dessinée, la façon dont le site est fait, ce qu'il retient.
 import { Image } from 'astro:assets';
 import logo from '../assets/images/technidev.png';
+import { GUESTBOOK_ENABLED } from '../lib/guestbook/enabled';
 ---
 
 <footer class="site-footer">
@@ -16,12 +17,22 @@ import logo from '../assets/images/technidev.png';
         Ce site a été conçu avec Claude Code : je décris, je décide et je relis, l'IA écrit le code.{' '}
         <a href="/#fabrication">Comment c'est fait</a>
       </p>
-      <p>Aucun cookie, aucun traceur. Le site retient seulement le gaz choisi, dans ce navigateur.</p>
+      {
+        GUESTBOOK_ENABLED ? (
+          <p>
+            Aucun traceur, et aucun cookie pour les visiteurs. Le site retient le gaz choisi, dans ce navigateur, et
+            les messages du livre d'or.
+          </p>
+        ) : (
+          <p>Aucun cookie, aucun traceur. Le site retient seulement le gaz choisi, dans ce navigateur.</p>
+        )
+      }
     </div>
 
     <nav class="footer-links small" aria-label="Liens du pied de page">
       <a href="/labo">Labo</a>
       <a href="/projets">Projets</a>
+      {GUESTBOOK_ENABLED && <a href="/livre-d-or">Livre d'or</a>}
       <a href="https://github.com/MathieuPaillard" rel="noopener">GitHub</a>
     </nav>
   </div>

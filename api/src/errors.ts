@@ -1,9 +1,12 @@
 import type { ErrorRequestHandler, RequestHandler, Response } from 'express';
 import pg from 'pg';
 import { z } from 'zod';
+import type { ApiErrorBody, ErrorCode, ValidationDetail } from './contract.js';
 
-// Codes et statuts du tableau du §B6.1 de la SPEC.
-const STATUS_BY_CODE = {
+export type { ApiErrorBody, ErrorCode, ValidationDetail };
+
+// Codes et statuts du tableau du §B6.1 de la SPEC. Le type exige un statut pour chaque code du contrat, et aucun autre.
+const STATUS_BY_CODE: Record<ErrorCode, number> = {
   VALIDATION: 400,
   UNAUTHENTICATED: 401,
   INVALID_CREDENTIALS: 401,
@@ -13,16 +16,7 @@ const STATUS_BY_CODE = {
   GUESTBOOK_FULL: 409,
   TOO_MANY_REQUESTS: 429,
   INTERNAL_ERROR: 500,
-} as const;
-
-export type ErrorCode = keyof typeof STATUS_BY_CODE;
-export interface ApiErrorBody {
-  error: { code: ErrorCode; message: string; details?: unknown };
-}
-export interface ValidationDetail {
-  path: string;
-  message: string;
-}
+};
 
 /** Taille maximale d'un corps de requête, en ko (SPEC §B6). */
 export const MAX_BODY_KB = 8;

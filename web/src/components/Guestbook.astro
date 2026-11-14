@@ -1,0 +1,136 @@
+---
+// Le livre d'or : les messages publiés et le formulaire (SPEC §B8). Rendu seulement quand l'API est branchée.
+// Les messages sont posés par lib/guestbook/page.ts ; rien de ce qu'un visiteur écrit ne passe par du HTML.
+import '../styles/guestbook.css';
+import { DEMOS } from '../data/demos';
+import { PROJECTS } from '../data/projects';
+import { AUTHOR_MAX, AUTHOR_MIN, BODY_MAX } from '../lib/guestbook/format';
+---
+
+<div class="guestbook-layout">
+  <section class="guestbook" id="guestbook" aria-labelledby="guestbook-title" data-state="loading">
+    <h2 id="guestbook-title">Les messages</h2>
+    <p class="guestbook-status" id="guestbook-status" hidden></p>
+    <p class="visually-hidden" role="status" id="guestbook-live"></p>
+    <ol class="messages" id="guestbook-list"></ol>
+    <div class="guestbook-actions">
+      <button class="btn btn-quiet" type="button" id="guestbook-more" hidden>Afficher la suite</button>
+      <button class="btn btn-quiet" type="button" id="guestbook-retry" hidden>Réessayer</button>
+    </div>
+    <noscript>
+      <p class="muted">Le livre d'or a besoin de JavaScript pour afficher et envoyer les messages.</p>
+    </noscript>
+  </section>
+
+  <form class="guestbook-form plate" id="ecrire" novalidate aria-labelledby="guestbook-form-title">
+    <h2 id="guestbook-form-title">Laisser un mot</h2>
+
+    <div class="field">
+      <label class="field-label" for="gb-author">Pseudo</label>
+      <input
+        class="input"
+        id="gb-author"
+        name="author"
+        type="text"
+        autocomplete="nickname"
+        autocapitalize="words"
+        maxlength={AUTHOR_MAX * 2}
+        required
+        aria-describedby="gb-author-hint gb-author-error"
+      />
+      <p class="small muted" id="gb-author-hint">{AUTHOR_MIN} à {AUTHOR_MAX} caractères. Pas besoin de votre vrai nom.</p>
+      <p class="field-error" id="gb-author-error" hidden></p>
+    </div>
+
+    <div class="field">
+      <label class="field-label" for="gb-page">À propos de</label>
+      <select class="input" id="gb-page" name="page" aria-describedby="gb-page-error">
+        <option value="">Le site en général</option>
+        <optgroup label="Une démo du labo">
+          {DEMOS.map((demo) => <option value={`demo:${demo.slug}`} data-href={`/labo/${demo.slug}`}>{demo.name}</option>)}
+        </optgroup>
+        <optgroup label="Un projet">
+          {PROJECTS.map((project) => <option value={`project:${project.slug}`} data-href="/projets">{project.name}</option>)}
+        </optgroup>
+      </select>
+      <p class="field-error" id="gb-page-error" hidden></p>
+    </div>
+
+    <div class="field">
+      <div class="field-label">
+        <label for="gb-body">Message</label>
+        <span class="field-value" id="gb-count" aria-hidden="true">0 / {BODY_MAX}</span>
+      </div>
+      <textarea class="input" id="gb-body" name="body" rows="6" required aria-describedby="gb-body-hint gb-body-error"></textarea>
+      <p class="small muted" id="gb-body-hint">{BODY_MAX} caractères au plus, sans lien.</p>
+      <p class="field-error" id="gb-body-error" hidden></p>
+    </div>
+
+    <!-- Champ piège : un visiteur ne le voit pas et ne l'atteint pas au clavier ; un robot le remplit. -->
+    <div class="guestbook-trap" aria-hidden="true">
+      <label for="gb-website">Ne remplissez pas ce champ</label>
+      <input id="gb-website" name="website" type="text" tabindex="-1" autocomplete="off" />
+    </div>
+
+    <div class="guestbook-submit">
+      <button class="btn" type="submit" id="gb-submit" disabled>Envoyer</button>
+      <p class="guestbook-status" id="gb-status" hidden></p>
+      <p class="visually-hidden" role="status" id="gb-live"></p>
+    </div>
+
+    <div class="guestbook-notice small muted">
+      <p>
+        Votre message n'apparaît pas tout de suite : je le relis d'abord. Ce qui est enregistré : votre pseudo, votre
+        message, ce dont il parle et la date. Pas d'e-mail, pas de cookie. Votre adresse IP sert seulement à limiter
+        le nombre d'envois : elle n'est pas enregistrée.
+      </p>
+      <p>
+        Pour faire retirer un message, demandez-le ici même : la demande m'arrive sans être publiée, et je supprime
+        les deux.
+      </p>
+    </div>
+  </form>
+</div>
+
+<script>
+  import '../lib/guestbook/page';
+</script>
+
+<style>
+  .guestbook-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-7);
+    align-items: start;
+  }
+
+  .guestbook {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-4);
+  }
+
+  .guestbook-notice {
+    display: grid;
+    gap: var(--space-2);
+    padding-top: var(--space-3);
+    border-top: 1px solid var(--line);
+  }
+
+  .guestbook-notice p {
+    margin: 0;
+  }
+
+  /* Écran large : les messages à gauche, le formulaire à droite, qui reste en vue pendant la lecture. */
+  @media (min-width: 62rem) {
+    .guestbook-layout {
+      grid-template-columns: minmax(0, 1fr) 24rem;
+      gap: var(--space-6);
+    }
+
+    .guestbook-form {
+      position: sticky;
+      top: var(--space-4);
+    }
+  }
+</style>

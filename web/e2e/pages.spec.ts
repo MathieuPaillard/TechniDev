@@ -39,7 +39,7 @@ test('aucune page ne charge quoi que ce soit hors du site', async ({ page }) => 
 });
 
 test('une adresse inconnue donne la page 404', async ({ page, guards }) => {
-  guards.allowNotFound(/\/pas-de-page-ici$/);
+  guards.allowStatus(/\/pas-de-page-ici$/);
   const response = await page.goto('/pas-de-page-ici');
   expect(response?.status()).toBe(404);
   await expect(page.getByRole('heading', { level: 1 })).toHaveText('Ce tube-là est grillé');

@@ -1,10 +1,11 @@
 ---
 // En-tête : la marque, la navigation, le gaz courant (un clic passe au suivant) et l'interrupteur des tubes.
 // Les deux commandes sont branchées par lib/ui/chrome.ts.
+import { GUESTBOOK_ENABLED } from '../lib/guestbook/enabled';
 import { DEFAULT_GAS, GAS_INFO } from '../lib/ui/theme';
 
 interface Props {
-  current?: 'labo' | 'projets' | undefined;
+  current?: 'labo' | 'projets' | 'livre-d-or' | undefined;
 }
 
 const { current } = Astro.props;
@@ -21,6 +22,13 @@ const gas = GAS_INFO[DEFAULT_GAS];
       <a href="/labo" aria-current={current === 'labo' ? 'page' : undefined}>Labo</a>
       <a href="/projets" aria-current={current === 'projets' ? 'page' : undefined}>Projets</a>
       <a href="/#parcours">Parcours</a>
+      {
+        GUESTBOOK_ENABLED && (
+          <a href="/livre-d-or" aria-current={current === 'livre-d-or' ? 'page' : undefined}>
+            Livre d'or
+          </a>
+        )
+      }
     </nav>
 
     <div class="site-controls">
@@ -84,6 +92,7 @@ const gas = GAS_INFO[DEFAULT_GAS];
     padding-inline: 0.6rem;
     font-weight: 600;
     text-decoration: none;
+    white-space: nowrap;
     color: var(--chalk-soft);
   }
 
@@ -224,6 +233,24 @@ const gas = GAS_INFO[DEFAULT_GAS];
       overflow: hidden;
       clip-path: inset(50%);
       white-space: nowrap;
+    }
+  }
+
+  /* Petit écran (320 px) : quatre liens tiennent sur une ligne en se serrant un peu. */
+  @media (max-width: 23rem) {
+    .site-nav {
+      gap: 0;
+      margin-inline: -0.4rem;
+    }
+
+    .site-nav a {
+      padding-inline: 0.4rem;
+      font-size: var(--text-s);
+    }
+
+    .site-nav a[aria-current='page']::after {
+      left: 0.4rem;
+      right: 0.4rem;
     }
   }
 </style>

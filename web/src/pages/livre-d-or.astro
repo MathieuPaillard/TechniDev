@@ -1,0 +1,54 @@
+---
+// Le livre d'or. Tant que l'API n'est pas branchée (astro.config.mjs), la page le dit et n'appelle rien.
+import Base from '../layouts/Base.astro';
+import Guestbook from '../components/Guestbook.astro';
+import { GUESTBOOK_ENABLED } from '../lib/guestbook/enabled';
+---
+
+<Base
+  title="Livre d'or"
+  description="Un mot sur le site, une démo ou un projet de Mathieu Paillard. Chaque message est relu avant d'apparaître."
+  current="livre-d-or"
+>
+  <div class="container guestbook-page">
+    <header class="section-head">
+      <h1 class="tube">Livre d'or</h1>
+      {
+        GUESTBOOK_ENABLED ? (
+          <p class="lede">
+            Un mot sur le site, une démo ou un projet : ce qui vous a plu, ce qui coince, ce que vous auriez fait
+            autrement. Je relis chaque message avant qu'il apparaisse.
+          </p>
+        ) : (
+          <p class="lede">Le livre d'or n'est pas encore ouvert. En attendant, les démos du labo sont là pour jouer.</p>
+        )
+      }
+      {
+        GUESTBOOK_ENABLED ? (
+          <p class="guestbook-jump">
+            <a class="btn" href="#ecrire">Écrire un message</a>
+          </p>
+        ) : (
+          <p>
+            <a class="btn" href="/labo">Aller au labo</a>
+          </p>
+        )
+      }
+    </header>
+
+    {GUESTBOOK_ENABLED && <Guestbook />}
+  </div>
+</Base>
+
+<style>
+  .guestbook-page {
+    padding-block: var(--space-6) var(--space-7);
+  }
+
+  /* Écran large : le formulaire est déjà en vue à droite, le raccourci ne sert à rien. */
+  @media (min-width: 62rem) {
+    .guestbook-jump {
+      display: none;
+    }
+  }
+</style>
